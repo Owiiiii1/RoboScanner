@@ -27,10 +27,10 @@
                 <DatePicker x:Name="DpTo" Width="140" SelectedDateChanged="FilterChanged" Margin="0,0,8,0"/>
                 <TextBlock Text="{DynamicResource LogViewer.Type}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                 <ComboBox x:Name="CbType" Width="150" SelectionChanged="FilterChanged">
-                    <ComboBoxItem Content="{DynamicResource LogViewer.Type.All}" IsSelected="True"/>
-                    <ComboBoxItem Content="{DynamicResource LogViewer.Type.Application}"/>
-                    <ComboBoxItem Content="{DynamicResource LogViewer.Type.Scan}"/>
-                    <ComboBoxItem Content="{DynamicResource LogViewer.Type.Other}"/>
+                    <ComboBoxItem Tag="all"   Content="{DynamicResource LogViewer.Type.All}" IsSelected="True"/>
+                    <ComboBoxItem Tag="app"   Content="{DynamicResource LogViewer.Type.Application}"/>
+                    <ComboBoxItem Tag="scan"  Content="{DynamicResource LogViewer.Type.Scan}"/>
+                    <ComboBoxItem Tag="other" Content="{DynamicResource LogViewer.Type.Other}"/>
                 </ComboBox>
             </StackPanel>
         </DockPanel>
@@ -46,11 +46,11 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="{DynamicResource Log.Col.Time}" Binding="{Binding Timestamp, StringFormat='{}{0:g}'}"
                                     SortMemberPath="Timestamp" Width="160"/>
-                <DataGridTextColumn Header="{DynamicResource Log.Col.Level}" Binding="{Binding Level}" SortMemberPath="Level" Width="90"/>
-                <DataGridTextColumn Header="{DynamicResource Log.Col.Source}" Binding="{Binding Source}" SortMemberPath="Source" Width="140"/>
-                <DataGridTextColumn Header="{DynamicResource LogViewer.Type}" Binding="{Binding EventType}" SortMemberPath="EventType" Width="120"/>
-                <DataGridTextColumn Header="{DynamicResource Log.Col.Message}" Binding="{Binding Message}" Width="*" />
-                <DataGridTextColumn Header="{DynamicResource Log.Col.Data}" Binding="{Binding DisplayData}" Width="500"/>
+                <DataGridTextColumn Header="{DynamicResource Log.Col.Level}" Binding="{Binding Level}" SortMemberPath="Level" Width="70"/>
+                <!-- <DataGridTextColumn Header="{DynamicResource Log.Col.Source}" Binding="{Binding Source}" SortMemberPath="Source" Width="70"/>-->
+                <DataGridTextColumn Header="{DynamicResource LogViewer.Type}" Binding="{Binding EventType}" SortMemberPath="EventType" Width="100"/>
+                <DataGridTextColumn Header="{DynamicResource Log.Col.Message}" Binding="{Binding Message}" Width="200" />
+                <DataGridTextColumn Header="{DynamicResource Log.Col.Data}" Binding="{Binding DisplayData}" Width="*"/>
 
             </DataGrid.Columns>
         </DataGrid>

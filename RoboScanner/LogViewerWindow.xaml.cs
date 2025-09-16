@@ -82,24 +82,24 @@ namespace RoboScanner.Views
         {
             if (obj is not LogEntry e) return false;
 
-            // Если фильтров ещё нет в визуальном дереве, пропускаем
+            // если фильтры ещё не готовы — показываем
             if (CbType == null || DpFrom == null || DpTo == null) return true;
 
-            // Тип события
-            var type = (CbType.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "All";
-            if (!string.Equals(type, "All", StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(e.EventType, type, StringComparison.OrdinalIgnoreCase))
-                return false;
+            var tag = (CbType.SelectedItem as ComboBoxItem)?.Tag as string ?? "all";
+            switch (tag)
+            {
+                case "app": if (e.EventType != "Application") return false; break;
+                case "scan": if (e.EventType != "Scan") return false; break;
+                case "other": if (e.EventType != "Other") return false; break;
+                    // "all" — без фильтра
+            }
 
-            // Диапазон дат (включительно)
-            if (DpFrom.SelectedDate is DateTime from && e.Timestamp < from.Date)
-                return false;
-            if (DpTo.SelectedDate is DateTime to &&
-                e.Timestamp > to.Date.AddDays(1).AddTicks(-1))
-                return false;
+            if (DpFrom.SelectedDate is DateTime from && e.Timestamp < from.Date) return false;
+            if (DpTo.SelectedDate is DateTime to && e.Timestamp > to.Date.AddDays(1).AddTicks(-1)) return false;
 
             return true;
         }
+
 
         // Один обработчик для ComboBox.SelectionChanged и DatePicker.SelectedDateChanged
         private void FilterChanged(object? sender, SelectionChangedEventArgs e)

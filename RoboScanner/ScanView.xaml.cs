@@ -32,7 +32,7 @@ namespace RoboScanner.Views
             TxtProgramState.Text = S("Scan.Program.Stopped");   // Остановлена / Stopped / Arrestato
             TxtRunState.Text = S("Scan.State.Wait");
             ChipProgram.Background = new SolidColorBrush(Color.FromRgb(239, 246, 255)); // обратно к синему оттенку
-            _log.Info("ScanView", "Scannig process aborted");
+            _log.Info("App", "Scannig process aborted");
         }
 
         private void BtnScanOnce_Click(object sender, RoutedEventArgs e)
@@ -63,7 +63,7 @@ namespace RoboScanner.Views
 
             TxtRunState.Text = S("Scan.State.Done");
 
-            _log.Info("ScanView", "scanning DONE",
+            _log.Info("ScanView", "DONE",
                 new { Group = group, X = x, Y = y, Z = z, At = DateTime.Now.ToString("o") });
         }
     }

@@ -29,7 +29,7 @@
                             Width="160"/>
                 <DataGridTextColumn Header="{DynamicResource Log.Col.Level}" Binding="{Binding Level}" Width="80"/>
                 <DataGridTextColumn Header="{DynamicResource Log.Col.Source}" Binding="{Binding Source}" Width="120"/>
-                <DataGridTextColumn Header="{DynamicResource Log.Col.Message}" Binding="{Binding Message}" Width="*"/>
+                <DataGridTextColumn Header="{DynamicResource Log.Col.Message}" Binding="{Binding Message}" Width="200"/>
                 <DataGridTextColumn Header="{DynamicResource Log.Col.Data}" Binding="{Binding DisplayData}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>

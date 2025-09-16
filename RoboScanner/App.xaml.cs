@@ -1,8 +1,9 @@
 ﻿// App.xaml.cs
+using RoboScanner.Localization;
+using RoboScanner.Services;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Markup;
-using RoboScanner.Localization;
 using AppSettings = RoboScanner.Properties.Settings;
 
 namespace RoboScanner
@@ -32,6 +33,8 @@ namespace RoboScanner
 
             // применяем ресурсы и культуры, проставляем Language окнам
             Loc.SetLanguage(saved);
+
+            LogService.Instance.Info("App", "Application started", new { UILang = saved });
 
             var w = new MainWindow();
             w.Show();
