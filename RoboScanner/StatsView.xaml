@@ -1,0 +1,8 @@
+﻿<UserControl x:Class="RoboScanner.Views.StatsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="16">
+        <TextBlock Text="Статистика — аналитика за период" FontSize="18" FontWeight="SemiBold"/>
+    </Grid>
+</UserControl>
+

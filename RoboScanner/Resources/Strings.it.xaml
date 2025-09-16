@@ -1,0 +1,37 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <sys:String x:Key="Sidebar.Title">RoboScanner</sys:String>
+    <sys:String x:Key="Nav.Title">Navigazione</sys:String>
+    <sys:String x:Key="Nav.Scan">Scansione</sys:String>
+    <sys:String x:Key="Nav.GroupSetup">Configurazione gruppi</sys:String>
+    <sys:String x:Key="Nav.Groups">Gruppi</sys:String>
+    <sys:String x:Key="Nav.Settings">Impostazioni</sys:String>
+    <sys:String x:Key="Nav.Log">Log</sys:String>
+    <sys:String x:Key="Nav.Stats">Statistiche</sys:String>
+
+    <sys:String x:Key="Scan.Program">Programma:</sys:String>
+    <sys:String x:Key="Scan.Status">Stato:</sys:String>
+    <sys:String x:Key="Scan.Program.Running">In esecuzione</sys:String>
+    <sys:String x:Key="Scan.Program.Stopped">Arrestato</sys:String>
+    <sys:String x:Key="Scan.State.Wait">In attesa</sys:String>
+    <sys:String x:Key="Scan.State.Scanning">Scansione…</sys:String>
+    <sys:String x:Key="Scan.State.Done">Completato</sys:String>
+
+    <sys:String x:Key="Scan.Btn.Start">Avvia</sys:String>
+    <sys:String x:Key="Scan.Btn.Stop">Ferma</sys:String>
+    <sys:String x:Key="Scan.Btn.ScanOnce">Scansiona</sys:String>
+
+    <sys:String x:Key="Scan.LastResult">Ultimo risultato</sys:String>
+    <sys:String x:Key="Scan.Group">Gruppo:</sys:String>
+    <sys:String x:Key="Scan.Time">Ora:</sys:String>
+    <sys:String x:Key="Scan.Sizes">Dimensioni (mm)</sys:String>
+    <sys:String x:Key="Scan.BottomCam">Camera inferiore</sys:String>
+    <sys:String x:Key="Scan.SideCam">Camera laterale</sys:String>
+
+    <sys:String x:Key="Settings.Title">Impostazioni</sys:String>
+    <sys:String x:Key="Settings.Language">Lingua dell'interfaccia</sys:String>
+    <sys:String x:Key="Settings.Lang.RU">Русский</sys:String>
+    <sys:String x:Key="Settings.Lang.EN">English</sys:String>
+    <sys:String x:Key="Settings.Lang.IT">Italiano</sys:String>
+</ResourceDictionary>

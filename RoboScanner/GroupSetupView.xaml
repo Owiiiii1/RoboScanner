@@ -1,0 +1,9 @@
+﻿<UserControl x:Class="RoboScanner.Views.GroupSetupView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="16">
+        <TextBlock Text="Настройка групп (таблицы диапазонов)" FontSize="18" FontWeight="SemiBold"/>
+        <!-- здесь позже появится таблица на 15 строк -->
+    </Grid>
+</UserControl>
+
