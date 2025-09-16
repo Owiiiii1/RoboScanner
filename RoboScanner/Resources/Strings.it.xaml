@@ -34,4 +34,59 @@
     <sys:String x:Key="Settings.Lang.RU">Русский</sys:String>
     <sys:String x:Key="Settings.Lang.EN">English</sys:String>
     <sys:String x:Key="Settings.Lang.IT">Italiano</sys:String>
+
+    <!-- Group Setup -->
+    <sys:String x:Key="GroupSetup.Title">Configurazione gruppi</sys:String>
+    <sys:String x:Key="GroupSetup.Save">Salva</sys:String>
+    <sys:String x:Key="GroupSetup.Load">Carica</sys:String>
+    <sys:String x:Key="GroupSetup.Reset">Ripristina (predef. 15)</sys:String>
+
+    <sys:String x:Key="GroupSetup.Col.Name">Nome</sys:String>
+    <sys:String x:Key="GroupSetup.Col.Description">Descrizione</sys:String>
+    <sys:String x:Key="GroupSetup.Col.MaxX">MaxX (mm)</sys:String>
+    <sys:String x:Key="GroupSetup.Col.MaxY">MaxY (mm)</sys:String>
+    <sys:String x:Key="GroupSetup.Col.MaxZ">MaxZ (mm)</sys:String>
+
+    <sys:String x:Key="GroupSetup.Hint">Lascia vuoti MaxY/MaxZ se non necessari. Puoi salvare e caricare le modifiche.</sys:String>
+
+    <sys:String x:Key="GroupSetup.SaveOk.Title">Salvataggio</sys:String>
+    <sys:String x:Key="GroupSetup.SaveOk.Body">Regole salvate.</sys:String>
+    <sys:String x:Key="GroupSetup.LoadOk.Title">Caricamento</sys:String>
+    <sys:String x:Key="GroupSetup.LoadOk.Body">Regole caricate.</sys:String>
+    <sys:String x:Key="GroupSetup.ResetConfirm.Title">Ripristino</sys:String>
+    <sys:String x:Key="GroupSetup.ResetConfirm.Body">Ripristinare alle 15 impostazioni predefinite?</sys:String>
+
+    <!-- Log page -->
+    <sys:String x:Key="Log.Title">Registro eventi</sys:String>
+    <sys:String x:Key="Log.OpenFile">Apri file</sys:String>
+    <sys:String x:Key="Log.OpenFolder">Apri cartella</sys:String>
+    <sys:String x:Key="Log.Clear">Pulisci elenco</sys:String>
+    <sys:String x:Key="Log.OpenTable">Apri in tabella…</sys:String>
+    <sys:String x:Key="Log.Col.Time">Ora</sys:String>
+    <sys:String x:Key="Log.Col.Level">Livello</sys:String>
+    <sys:String x:Key="Log.Col.Source">Origine</sys:String>
+    <sys:String x:Key="Log.Col.Message">Messaggio</sys:String>
+    <sys:String x:Key="Log.Col.Data">Dati</sys:String>
+    <sys:String x:Key="Log.Hint">Il registro viene scritto in logs/app.log (una riga JSON per voce).</sys:String>
+
+    <!-- Log viewer window -->
+    <sys:String x:Key="LogViewer.Title">Visualizzatore log</sys:String>
+    <sys:String x:Key="LogViewer.Pick">Scegli file…</sys:String>
+    <sys:String x:Key="LogViewer.Reload">Ricarica</sys:String>
+    <sys:String x:Key="LogViewer.From">Da:</sys:String>
+    <sys:String x:Key="LogViewer.To">A:</sys:String>
+    <sys:String x:Key="LogViewer.Type">Tipo:</sys:String>
+    <sys:String x:Key="LogViewer.Type.All">Tutti</sys:String>
+    <sys:String x:Key="LogViewer.Type.Application">Applicazione</sys:String>
+    <sys:String x:Key="LogViewer.Type.Scan">Scansione</sys:String>
+    <sys:String x:Key="LogViewer.Type.Other">Altro</sys:String>
+    <sys:String x:Key="LogViewer.Error.ReadTitle">Errore</sys:String>
+    <sys:String x:Key="LogViewer.Error.ReadBody">Impossibile leggere il file di log:</sys:String>
+    <sys:String x:Key="LogViewer.Status.FileNotSelected">Nessun file selezionato</sys:String>
+    <sys:String x:Key="LogViewer.Status.CountFormat">Visualizzati: {0} / Totale: {1}</sys:String>
+
+    <!-- Scan data display -->
+    <sys:String x:Key="Log.Scan.DisplayFormat">Gruppo - {0} - x ( {1} ) - y ( {2} ) - z ( {3} ) - {4} ( {5} )</sys:String>
+
+
 </ResourceDictionary>

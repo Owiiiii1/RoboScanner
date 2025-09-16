@@ -1,28 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using RoboScanner.Services;
 
 namespace RoboScanner.Views
 {
-    /// <summary>
-    /// Interaction logic for LogView.xaml
-    /// </summary>
     public partial class LogView : UserControl
     {
+        private readonly LogService _log = LogService.Instance;
+
         public LogView()
         {
             InitializeComponent();
+            DataContext = _log;
         }
+
+        private void BtnOpenFile_Click(object sender, RoutedEventArgs e) => _log.OpenLogFile();
+        private void BtnOpenFolder_Click(object sender, RoutedEventArgs e) => _log.OpenLogFolder();
+
+        private void BtnClear_Click(object sender, RoutedEventArgs e)
+        {
+            _log.Entries.Clear(); // очищаем только список на экране (файл остаётся)
+        }
+
+        private void BtnOpenViewer_Click(object sender, RoutedEventArgs e)
+        {
+            var w = new LogViewerWindow(LogService.Instance.LogPath)
+            {
+                Owner = Window.GetWindow(this)
+            };
+            w.Show();
+        }
+
     }
 }

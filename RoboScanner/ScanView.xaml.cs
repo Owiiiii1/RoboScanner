@@ -2,12 +2,14 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using RoboScanner.Services;
 
 namespace RoboScanner.Views
 {
     public partial class ScanView : UserControl
     {
         private bool _running = false;
+        private readonly LogService _log = LogService.Instance;
         private string S(string key) => (string)FindResource(key);
 
         public ScanView()
@@ -21,6 +23,7 @@ namespace RoboScanner.Views
             TxtProgramState.Text = S("Scan.Program.Running");   // Запущена / Running / In esecuzione
             TxtRunState.Text = S("Scan.State.Wait");        // Ожидание / Waiting / In attesa
             ChipProgram.Background = new SolidColorBrush(Color.FromRgb(209, 250, 229)); // зелёный оттенок
+            _log.Info("App", "Scanning process started");
         }
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)
@@ -29,10 +32,12 @@ namespace RoboScanner.Views
             TxtProgramState.Text = S("Scan.Program.Stopped");   // Остановлена / Stopped / Arrestato
             TxtRunState.Text = S("Scan.State.Wait");
             ChipProgram.Background = new SolidColorBrush(Color.FromRgb(239, 246, 255)); // обратно к синему оттенку
+            _log.Info("ScanView", "Scannig process aborted");
         }
 
         private void BtnScanOnce_Click(object sender, RoutedEventArgs e)
         {
+            _log.Info("App", "Scanned ones");
             if (!_running)
             {
                 TxtRunState.Text = S("Scan.State.Wait");
@@ -57,6 +62,9 @@ namespace RoboScanner.Views
             TxtZ.Text = z.ToString("F2");
 
             TxtRunState.Text = S("Scan.State.Done");
+
+            _log.Info("ScanView", "scanning DONE",
+                new { Group = group, X = x, Y = y, Z = z, At = DateTime.Now.ToString("o") });
         }
     }
 }

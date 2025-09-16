@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using RoboScanner.Localization;
+using AppSettings = RoboScanner.Properties.Settings;
 
 namespace RoboScanner.Views
 {
@@ -12,9 +13,9 @@ namespace RoboScanner.Views
             // выставить текущий язык
             switch (Loc.CurrentLanguage)
             {
-                case "en": RbEN.IsChecked = true; break;
+                case "ru": RbRU.IsChecked = true; break;
                 case "it": RbIT.IsChecked = true; break;
-                default: RbRU.IsChecked = true; break;
+                default: RbEN.IsChecked = true; break;
             }
         }
 
@@ -23,8 +24,8 @@ namespace RoboScanner.Views
             if (sender is RadioButton rb && rb.Tag is string lang)
             {
                 Loc.SetLanguage(lang);
-                // опционально: сохранить выбор в файл/настройки, чтобы восстановить при старте
-                // Properties.Settings.Default.UILang = lang; Properties.Settings.Default.Save();
+                AppSettings.Default.UILang = lang;
+                AppSettings.Default.Save();   // ← без доп. кнопки, сохраняем сразу
             }
         }
     }

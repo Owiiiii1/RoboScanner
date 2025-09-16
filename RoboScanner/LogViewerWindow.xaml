@@ -1,0 +1,64 @@
+﻿<Window x:Class="RoboScanner.Views.LogViewerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{DynamicResource LogViewer.Title}" Height="700" Width="1100"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- панель -->
+            <RowDefinition Height="*"/>
+            <!-- таблица -->
+            <RowDefinition Height="Auto"/>
+            <!-- статус -->
+        </Grid.RowDefinitions>
+
+        <!-- Панель -->
+        <DockPanel Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                <Button Content="{DynamicResource LogViewer.Pick}" Margin="0,0,8,0" Padding="16,0" Click="BtnPick_Click"/>
+                <Button Content="{DynamicResource LogViewer.Reload}" Margin="0,0,8,0" Padding="16,0" Click="BtnReload_Click"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" >
+                <TextBlock Text="{DynamicResource LogViewer.From}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <DatePicker x:Name="DpFrom" Width="140" SelectedDateChanged="FilterChanged" Margin="0,0,8,0"/>
+                <TextBlock Text="{DynamicResource LogViewer.To}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <DatePicker x:Name="DpTo" Width="140" SelectedDateChanged="FilterChanged" Margin="0,0,8,0"/>
+                <TextBlock Text="{DynamicResource LogViewer.Type}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <ComboBox x:Name="CbType" Width="150" SelectionChanged="FilterChanged">
+                    <ComboBoxItem Content="{DynamicResource LogViewer.Type.All}" IsSelected="True"/>
+                    <ComboBoxItem Content="{DynamicResource LogViewer.Type.Application}"/>
+                    <ComboBoxItem Content="{DynamicResource LogViewer.Type.Scan}"/>
+                    <ComboBoxItem Content="{DynamicResource LogViewer.Type.Other}"/>
+                </ComboBox>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Таблица -->
+        <DataGrid x:Name="LogGrid"
+                  Grid.Row="1"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  HeadersVisibility="Column"
+                  CanUserSortColumns="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="{DynamicResource Log.Col.Time}" Binding="{Binding Timestamp, StringFormat='{}{0:g}'}"
+                                    SortMemberPath="Timestamp" Width="160"/>
+                <DataGridTextColumn Header="{DynamicResource Log.Col.Level}" Binding="{Binding Level}" SortMemberPath="Level" Width="90"/>
+                <DataGridTextColumn Header="{DynamicResource Log.Col.Source}" Binding="{Binding Source}" SortMemberPath="Source" Width="140"/>
+                <DataGridTextColumn Header="{DynamicResource LogViewer.Type}" Binding="{Binding EventType}" SortMemberPath="EventType" Width="120"/>
+                <DataGridTextColumn Header="{DynamicResource Log.Col.Message}" Binding="{Binding Message}" Width="*" />
+                <DataGridTextColumn Header="{DynamicResource Log.Col.Data}" Binding="{Binding DisplayData}" Width="500"/>
+
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Строка состояния -->
+        <DockPanel Grid.Row="2" Margin="0,8,0,0">
+            <TextBlock x:Name="TxtPath" DockPanel.Dock="Left" TextTrimming="CharacterEllipsis"/>
+            <TextBlock x:Name="TxtCount" DockPanel.Dock="Right"/>
+        </DockPanel>
+    </Grid>
+</Window>

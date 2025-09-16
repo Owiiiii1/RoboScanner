@@ -1,14 +1,40 @@
-﻿using System.Configuration;
-using System.Data;
+﻿// App.xaml.cs
+using System.Globalization;
 using System.Windows;
+using System.Windows.Markup;
+using RoboScanner.Localization;
+using AppSettings = RoboScanner.Properties.Settings;
 
 namespace RoboScanner
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
     public partial class App : Application
     {
-    }
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
 
+            // читаем сохранённый язык или авто-выбор
+            var saved = AppSettings.Default.UILang;
+            if (string.IsNullOrWhiteSpace(saved))
+            {
+                var two = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+                saved = two switch { "ru" => "ru", "it" => "it", _ => "en" };
+            }
+
+            // вычисляем культуру заранее
+            var tag = saved switch { "ru" => "ru-RU", "it" => "it-IT", _ => "en-US" };
+            var ci = new CultureInfo(tag);
+
+            // ВАЖНО: OverrideMetadata — только один раз за всё время работы
+            FrameworkElement.LanguageProperty.OverrideMetadata(
+                typeof(FrameworkElement),
+                new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(ci.IetfLanguageTag)));
+
+            // применяем ресурсы и культуры, проставляем Language окнам
+            Loc.SetLanguage(saved);
+
+            var w = new MainWindow();
+            w.Show();
+        }
+    }
 }
