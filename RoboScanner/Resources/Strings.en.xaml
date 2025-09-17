@@ -29,6 +29,7 @@
     <sys:String x:Key="Scan.BottomCam">Bottom camera</sys:String>
     <sys:String x:Key="Scan.SideCam">Side camera</sys:String>
 
+
     <sys:String x:Key="Settings.Title">Settings</sys:String>
     <sys:String x:Key="Settings.Language">Interface language</sys:String>
     <sys:String x:Key="Settings.Lang.RU">Русский</sys:String>
@@ -87,6 +88,49 @@
 
     <!-- Scan data display -->
     <sys:String x:Key="Log.Scan.DisplayFormat">Group - {0} - x ( {1} ) - y ( {2} ) - z ( {3} ) - {4} ( {5} )</sys:String>
+
+    <!-- Groups page -->
+    <sys:String x:Key="Groups.Title">Groups</sys:String>
+    <sys:String x:Key="Groups.LastLabel">Last:</sys:String>
+    <sys:String x:Key="Groups.Tooltip.Clear">Clear group</sys:String>
+
+    <!-- Dialogs / messages -->
+    <sys:String x:Key="Groups.Confirm.ResetCount.Title">Confirmation</sys:String>
+    <sys:String x:Key="Groups.Confirm.ResetCount.Body">Reset counter of group “{0}” (#{1}) to 0?</sys:String>
+
+    <sys:String x:Key="Groups.Confirm.ClearGroup.Title">Confirmation</sys:String>
+    <sys:String x:Key="Groups.Confirm.ClearGroup.Body">Clear group “{0}” (#{1})? The counter and last measurements will be cleared.</sys:String>
+
+    <sys:String x:Key="Groups.Alert.CannotClearWhileRunning.Title">Warning</sys:String>
+    <sys:String x:Key="Groups.Alert.CannotClearWhileRunning.Body">Cannot clear a group while running. Please pause scanning.</sys:String>
+
+    <sys:String x:Key="Groups.Alert.Cleared.Title">Done</sys:String>
+    <sys:String x:Key="Groups.Alert.Cleared.Body">Group “{0}” has been cleared.</sys:String>
+
+    <sys:String x:Key="Groups.Alert.ResetDone.Title">Done</sys:String>
+    <sys:String x:Key="Groups.Alert.ResetDone.Body">Group “{0}” has been reset. You can continue scanning.</sys:String>
+
+    <!-- Scan: message boxes -->
+    <sys:String x:Key="Scan.Alert.NoActiveGroups.Title">Warning</sys:String>
+    <sys:String x:Key="Scan.Alert.NoActiveGroups.Body">No active groups in settings. Specify sizes for at least one group.</sys:String>
+
+    <sys:String x:Key="Scan.Alert.GroupOverflow.Title">Attention</sys:String>
+    <sys:String x:Key="Scan.Alert.GroupOverflow.Body">Group “{0}” is full ({1}). Scanning has been paused.</sys:String>
+    
+    <!-- Stats -->
+    <sys:String x:Key="Stats.HeaderPrimary">Statistics (basic)</sys:String>
+    <sys:String x:Key="Stats.SessionFromStart">From session start</sys:String>
+    <sys:String x:Key="Stats.FromLabel">From:</sys:String>
+    <sys:String x:Key="Stats.ToLabel">To:</sys:String>
+    <sys:String x:Key="Stats.TotalLabel">Scanned:</sys:String>
+    <sys:String x:Key="Stats.Range.NotSelected">Select both “From” and “To” dates</sys:String>
+    <sys:String x:Key="Stats.Range.Invalid">Invalid range</sys:String>
+    <sys:String x:Key="Stats.Placeholder.Second">(Widgets area #2)</sys:String>
+    <sys:String x:Key="Stats.Placeholder.Third">(Widgets area #3)</sys:String>
+
+
+
+
 
 
 </ResourceDictionary>

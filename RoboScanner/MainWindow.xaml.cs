@@ -6,36 +6,49 @@ namespace RoboScanner
 {
     public partial class MainWindow : Window
     {
+        // Кэшируем вью, чтобы не терять состояние при переключении
+        private ScanView? _scan;
+        private GroupSetupView? _groupSetup;
+        private GroupsView? _groups;
+        private SettingsView? _settings;
+        private LogView? _log;
+        private StatsView? _stats;
+
         public MainWindow()
         {
             InitializeComponent();
-            NavigateToScan(); // стартуем с раздела "Сканирование"
+            ShowView("Scan"); // стартовый экран
         }
 
-        private void ClearActive()
+        private void Nav_Click(object sender, RoutedEventArgs e)
         {
-            BtnScan.Tag = null;
-            BtnGroupSetup.Tag = null;
-            BtnGroups.Tag = null;
-            BtnSettings.Tag = null;
-            BtnLog.Tag = null;
-            BtnStats.Tag = null;
+            if (sender is Button b && b.Tag is string tag)
+                ShowView(tag);
         }
 
-        private void BtnScan_Click(object sender, RoutedEventArgs e) => NavigateToScan();
-        private void BtnGroupSetup_Click(object sender, RoutedEventArgs e) => Navigate(new GroupSetupView(), BtnGroupSetup);
-        private void BtnGroups_Click(object sender, RoutedEventArgs e) => Navigate(new GroupsView(), BtnGroups);
-        private void BtnSettings_Click(object sender, RoutedEventArgs e) => Navigate(new SettingsView(), BtnSettings);
-        private void BtnLog_Click(object sender, RoutedEventArgs e) => Navigate(new LogView(), BtnLog);
-        private void BtnStats_Click(object sender, RoutedEventArgs e) => Navigate(new StatsView(), BtnStats);
-
-        private void NavigateToScan() => Navigate(new ScanView(), BtnScan);
-
-        private void Navigate(UserControl view, Button activeButton)
+        private void ShowView(string tag)
         {
-            ClearActive();
-            activeButton.Tag = "Active";
-            ContentHost.Content = view;
+            switch (tag)
+            {
+                case "Scan":
+                    MainContent.Content = _scan ??= new ScanView();
+                    break;
+                case "GroupSetup":
+                    MainContent.Content = _groupSetup ??= new GroupSetupView();
+                    break;
+                case "Groups":
+                    MainContent.Content = _groups ??= new GroupsView();
+                    break;
+                case "Settings":
+                    MainContent.Content = _settings ??= new SettingsView();
+                    break;
+                case "Log":
+                    MainContent.Content = _log ??= new LogView();
+                    break;
+                case "Stats":
+                    MainContent.Content = _stats ??= new StatsView();
+                    break;
+            }
         }
     }
 }

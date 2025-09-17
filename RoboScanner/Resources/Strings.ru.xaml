@@ -32,6 +32,8 @@
     <sys:String x:Key="Scan.BottomCam">Камера снизу</sys:String>
     <sys:String x:Key="Scan.SideCam">Камера сбоку</sys:String>
 
+
+
     <!-- Настройки -->
     <sys:String x:Key="Settings.Title">Настройки</sys:String>
     <sys:String x:Key="Settings.Language">Язык интерфейса</sys:String>
@@ -91,6 +93,48 @@
 
     <!-- Scan data display -->
     <sys:String x:Key="Log.Scan.DisplayFormat">Группа - {0} - x ( {1} ) - y ( {2} ) - z ( {3} ) - {4} ( {5} )</sys:String>
+
+    <!-- Groups page -->
+    <sys:String x:Key="Groups.Title">Группы</sys:String>
+    <sys:String x:Key="Groups.LastLabel">Последнее:</sys:String>
+    <sys:String x:Key="Groups.Tooltip.Clear">Очистить группу</sys:String>
+
+    <!-- Dialogs / messages -->
+    <sys:String x:Key="Groups.Confirm.ResetCount.Title">Подтверждение</sys:String>
+    <sys:String x:Key="Groups.Confirm.ResetCount.Body">Сбросить счётчик группы «{0}» (#{1}) до 0?</sys:String>
+
+    <sys:String x:Key="Groups.Confirm.ClearGroup.Title">Подтверждение</sys:String>
+    <sys:String x:Key="Groups.Confirm.ClearGroup.Body">Очистить группу «{0}» (#{1})? Будут обнулены счётчик и последние замеры.</sys:String>
+
+    <sys:String x:Key="Groups.Alert.CannotClearWhileRunning.Title">Предупреждение</sys:String>
+    <sys:String x:Key="Groups.Alert.CannotClearWhileRunning.Body">Нельзя очистить группу во время работы. Поставьте сканирование на паузу.</sys:String>
+
+    <sys:String x:Key="Groups.Alert.Cleared.Title">Готово</sys:String>
+    <sys:String x:Key="Groups.Alert.Cleared.Body">Группа «{0}» очищена.</sys:String>
+
+    <sys:String x:Key="Groups.Alert.ResetDone.Title">Готово</sys:String>
+    <sys:String x:Key="Groups.Alert.ResetDone.Body">Группа «{0}» сброшена. Можно продолжать сканирование.</sys:String>
+
+    <!-- Scan: message boxes -->
+    <sys:String x:Key="Scan.Alert.NoActiveGroups.Title">Предупреждение</sys:String>
+    <sys:String x:Key="Scan.Alert.NoActiveGroups.Body">Нет активных групп в настройках. Укажите размеры хотя бы для одной группы.</sys:String>
+
+    <sys:String x:Key="Scan.Alert.GroupOverflow.Title">Внимание</sys:String>
+    <sys:String x:Key="Scan.Alert.GroupOverflow.Body">Группа «{0}» переполнена ({1}). Сканирование поставлено на паузу.</sys:String>
+
+    <!-- Stats -->
+    <sys:String x:Key="Stats.HeaderPrimary">Статистика (основное)</sys:String>
+    <sys:String x:Key="Stats.SessionFromStart">С начала сеанса</sys:String>
+    <sys:String x:Key="Stats.FromLabel">От:</sys:String>
+    <sys:String x:Key="Stats.ToLabel">До:</sys:String>
+    <sys:String x:Key="Stats.TotalLabel">Отсканировано:</sys:String>
+    <sys:String x:Key="Stats.Range.NotSelected">Выберите даты «От» и «До»</sys:String>
+    <sys:String x:Key="Stats.Range.Invalid">Неверный интервал</sys:String>
+    <sys:String x:Key="Stats.Placeholder.Second">(Здесь появятся виджеты статистики №2)</sys:String>
+    <sys:String x:Key="Stats.Placeholder.Third">(Здесь появятся виджеты статистики №3)</sys:String>
+
+
+
 
 
 </ResourceDictionary>

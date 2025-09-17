@@ -88,5 +88,47 @@
     <!-- Scan data display -->
     <sys:String x:Key="Log.Scan.DisplayFormat">Gruppo - {0} - x ( {1} ) - y ( {2} ) - z ( {3} ) - {4} ( {5} )</sys:String>
 
+    <!-- Groups page -->
+    <sys:String x:Key="Groups.Title">Gruppi</sys:String>
+    <sys:String x:Key="Groups.LastLabel">Ultimo:</sys:String>
+    <sys:String x:Key="Groups.Tooltip.Clear">Svuota gruppo</sys:String>
+
+    <!-- Dialoghi / messaggi -->
+    <sys:String x:Key="Groups.Confirm.ResetCount.Title">Conferma</sys:String>
+    <sys:String x:Key="Groups.Confirm.ResetCount.Body">Azzerare il contatore del gruppo “{0}” (#{1})?</sys:String>
+
+    <sys:String x:Key="Groups.Confirm.ClearGroup.Title">Conferma</sys:String>
+    <sys:String x:Key="Groups.Confirm.ClearGroup.Body">Svuotare il gruppo “{0}” (#{1})? Il contatore e le ultime misure verranno azzerati.</sys:String>
+
+    <sys:String x:Key="Groups.Alert.CannotClearWhileRunning.Title">Avviso</sys:String>
+    <sys:String x:Key="Groups.Alert.CannotClearWhileRunning.Body">Impossibile svuotare un gruppo durante l’esecuzione. Metti in pausa la scansione.</sys:String>
+
+    <sys:String x:Key="Groups.Alert.Cleared.Title">Fatto</sys:String>
+    <sys:String x:Key="Groups.Alert.Cleared.Body">Il gruppo “{0}” è stato svuotato.</sys:String>
+
+    <sys:String x:Key="Groups.Alert.ResetDone.Title">Fatto</sys:String>
+    <sys:String x:Key="Groups.Alert.ResetDone.Body">Il gruppo “{0}” è stato azzerato. Puoi continuare la scansione.</sys:String>
+
+    <!-- Scan: message boxes -->
+    <sys:String x:Key="Scan.Alert.NoActiveGroups.Title">Avviso</sys:String>
+    <sys:String x:Key="Scan.Alert.NoActiveGroups.Body">Nessun gruppo attivo nelle impostazioni. Specifica le dimensioni per almeno un gruppo.</sys:String>
+
+    <sys:String x:Key="Scan.Alert.GroupOverflow.Title">Attenzione</sys:String>
+    <sys:String x:Key="Scan.Alert.GroupOverflow.Body">Il gruppo “{0}” è pieno ({1}). La scansione è stata messa in pausa.</sys:String>
+
+    <!-- Stats -->
+    <sys:String x:Key="Stats.HeaderPrimary">Statistiche (base)</sys:String>
+    <sys:String x:Key="Stats.SessionFromStart">Dall'inizio della sessione</sys:String>
+    <sys:String x:Key="Stats.FromLabel">Da:</sys:String>
+    <sys:String x:Key="Stats.ToLabel">A:</sys:String>
+    <sys:String x:Key="Stats.TotalLabel">Scansionati:</sys:String>
+    <sys:String x:Key="Stats.Range.NotSelected">Seleziona le date “Da” e “A”</sys:String>
+    <sys:String x:Key="Stats.Range.Invalid">Intervallo non valido</sys:String>
+    <sys:String x:Key="Stats.Placeholder.Second">(Qui appariranno i widget #2)</sys:String>
+    <sys:String x:Key="Stats.Placeholder.Third">(Qui appariranno i widget #3)</sys:String>
+
+
+
+
 
 </ResourceDictionary>

@@ -14,6 +14,8 @@ namespace RoboScanner
         {
             base.OnStartup(e);
 
+            _ = ScanHistoryService.Instance; // форсируем загрузку истории с диска
+
             // читаем сохранённый язык или авто-выбор
             var saved = AppSettings.Default.UILang;
             if (string.IsNullOrWhiteSpace(saved))

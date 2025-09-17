@@ -10,6 +10,7 @@ namespace RoboScanner.Views
         private readonly GroupsService _groups = GroupsService.Instance;
         private readonly LogService _log = LogService.Instance;
         private readonly AppStateService _app = AppStateService.Instance;
+        private string S(string key) => (string)FindResource(key);
 
         public GroupsView()
         {
@@ -29,17 +30,18 @@ namespace RoboScanner.Views
             if (stat.IsFull)
             {
                 var ans = MessageBox.Show(
-                    $"Сбросить счётчик группы «{stat.Name}» (#{stat.Index}) до 0?",
-                    "Подтверждение",
-                    MessageBoxButton.YesNo, MessageBoxImage.Question);
+                             string.Format(S("Groups.Confirm.ResetCount.Body"), stat.Name, stat.Index),
+                                S("Groups.Confirm.ResetCount.Title"),
+                                MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (ans == MessageBoxResult.Yes)
                 {
-                    _groups.ResetGroup(idx, clearLast: false); // только счётчик
-                    _log.Info("Application", $"Счётчик группы «{stat.Name}» сброшен до 0",
-                              new { Group = stat.Index });
-                    MessageBox.Show($"Группа «{stat.Name}» сброшена. Можно продолжать сканирование.",
-                                    "Готово", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _groups.ResetGroup(idx, clearLast: false);
+                    _log.Info("Application", $"Counter of group “{stat.Name}” reset to 0", new { Group = stat.Index }); // лог можно оставить на одном языке
+                    MessageBox.Show(
+                        string.Format(S("Groups.Alert.ResetDone.Body"), stat.Name),
+                        S("Groups.Alert.ResetDone.Title"),
+                        MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
         }
@@ -56,22 +58,26 @@ namespace RoboScanner.Views
 
             if (_app.IsRunning)
             {
-                MessageBox.Show("Нельзя очистить группу во время работы. Поставьте сканирование на паузу.",
-                                "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
-                _log.Warn("Application", "Попытка очистить группу при активном сканировании", new { Group = idx });
+                MessageBox.Show(S("Groups.Alert.CannotClearWhileRunning.Body"),
+                                S("Groups.Alert.CannotClearWhileRunning.Title"),
+                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                _log.Warn("Application", "Attempt to clear group while running", new { Group = idx });
                 return;
             }
 
             var ans = MessageBox.Show(
-                $"Очистить группу «{stat.Name}» (#{stat.Index})?\nБудут обнулены счётчик и последние замеры.",
-                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                string.Format(S("Groups.Confirm.ClearGroup.Body"), stat.Name, stat.Index),
+                S("Groups.Confirm.ClearGroup.Title"),
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
 
             if (ans == MessageBoxResult.Yes)
             {
                 _groups.ResetGroup(idx, clearLast: true);
-                _log.Info("Application", "Группа очищена", new { Group = stat.Index, ClearedLast = true });
-                MessageBox.Show($"Группа «{stat.Name}» очищена.", "Готово",
-                                MessageBoxButton.OK, MessageBoxImage.Information);
+                _log.Info("Application", "Group cleared", new { Group = stat.Index, ClearedLast = true });
+                MessageBox.Show(
+                    string.Format(S("Groups.Alert.Cleared.Body"), stat.Name),
+                    S("Groups.Alert.Cleared.Title"),
+                    MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
     }

@@ -2,7 +2,71 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid Margin="16">
-        <TextBlock Text="Статистика — аналитика за период" FontSize="18" FontWeight="SemiBold"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- 1) галка -->
+            <RowDefinition Height="Auto"/>
+            <!-- 2) фильтры даты/времени -->
+            <RowDefinition Height="Auto"/>
+            <!-- 3) результат -->
+        </Grid.RowDefinitions>
+
+        <!-- 1) С начала сеанса -->
+        <Border Grid.Row="0" Padding="10" CornerRadius="10"
+            BorderBrush="#E5E7EB" BorderThickness="1" Background="#FFFFFF">
+            <CheckBox x:Name="ChkSession"
+                Content="{DynamicResource Stats.SessionFromStart}"
+                Checked="AnyChanged" Unchecked="AnyChanged"/>
+        </Border>
+
+        <!-- 2) Период От/До с часами и минутами -->
+        <Border Grid.Row="1" Padding="10" CornerRadius="10" Margin="0,12,0,0"
+            BorderBrush="#E5E7EB" BorderThickness="1" Background="#FFFFFF">
+            <Grid x:Name="RowFilters">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- От -->
+                <TextBlock Grid.Column="0" Text="{DynamicResource Stats.FromLabel}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <DatePicker Grid.Column="1" x:Name="DpFrom" Width="140" Margin="0,0,6,0" SelectedDateChanged="AnyChanged"/>
+                <ComboBox  Grid.Column="2" x:Name="CbFromH" Width="60"  Margin="0,0,4,0" SelectionChanged="AnyChanged"/>
+                <ComboBox  Grid.Column="3" x:Name="CbFromM" Width="60"  Margin="0,0,0,0" SelectionChanged="AnyChanged"/>
+
+                <!-- До -->
+                <TextBlock Grid.Column="4" Text="{DynamicResource Stats.ToLabel}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <DatePicker Grid.Column="5" x:Name="DpTo"   Width="140" Margin="0,0,6,0" SelectedDateChanged="AnyChanged"/>
+                <StackPanel Grid.Column="6" Orientation="Horizontal">
+                    <ComboBox x:Name="CbToH" Width="60"  Margin="0,0,4,0" SelectionChanged="AnyChanged"/>
+                    <ComboBox x:Name="CbToM" Width="60"  SelectionChanged="AnyChanged"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 3) Результат -->
+        <Border Grid.Row="2" Padding="10" CornerRadius="10" Margin="0,12,0,0"
+            BorderBrush="#E5E7EB" BorderThickness="1" Background="#FFFFFF">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Диапазон -->
+                <TextBlock x:Name="TxtRange" Foreground="#6B7280" VerticalAlignment="Center"/>
+
+                <!-- Итог -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="{DynamicResource Stats.TotalLabel}" FontWeight="SemiBold" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="TxtTotal" FontSize="20" FontWeight="Bold" Text="0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>
-

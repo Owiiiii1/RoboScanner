@@ -4,101 +4,74 @@
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- Статусы -->
+            <!-- заголовок -->
             <RowDefinition Height="Auto"/>
-            <!-- Кнопки управления -->
+            <!-- кнопки -->
             <RowDefinition Height="Auto"/>
-            <!-- Последний результат -->
+            <!-- полоса результатов -->
             <RowDefinition Height="*"/>
-            <!-- Превью -->
+            <!-- две фотографии до низа -->
         </Grid.RowDefinitions>
 
-        <!-- Статусы -->
-        <StackPanel Orientation="Horizontal">
-            <Border x:Name="ChipProgram" Style="{StaticResource StatusChip}" Background="#FFEFF6FF">
-                <TextBlock>
-                    <Run Text="{DynamicResource Scan.Program}"/>
-                    <Run Text=" "/>
-                    <Run x:Name="TxtProgramState" Text="{DynamicResource Scan.Program.Stopped}"/>
-                </TextBlock>
-            </Border>
-            <Border x:Name="ChipRun" Style="{StaticResource StatusChip}" Background="#FFEFF6FF">
-                <TextBlock>
-                    <Run Text="{DynamicResource Scan.Status}"/>
-                    <Run Text=" "/>
-                    <Run x:Name="TxtRunState" Text="{DynamicResource Scan.State.Wait}"/>
-                </TextBlock>
-            </Border>
+        <!-- Заголовок -->
+        <TextBlock Text="{DynamicResource Scan.Title}"
+               FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+        <!-- КНОПКИ -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+            <Button x:Name="BtnStart" Width="140" Height="36" Margin="0,0,8,0"
+              Click="BtnStart_Click" Content="{DynamicResource Scan.Btn.Start}"/>
+            <Button x:Name="BtnStop"  Width="140" Height="36" Margin="0,0,8,0"
+              Click="BtnStop_Click"  Content="{DynamicResource Scan.Btn.Stop}"/>
+            <Button x:Name="BtnScan"  Width="160" Height="36"
+              Click="BtnScanOnce_Click" Content="{DynamicResource Scan.Btn.ScanOnce}"/>
         </StackPanel>
 
-        <!-- Управление -->
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,12,0,12">
-            <Button x:Name="BtnStart" Content="{DynamicResource Scan.Btn.Start}" Width="120" Margin="0,0,8,0" Click="BtnStart_Click"/>
-            <Button x:Name="BtnStop" Content="{DynamicResource Scan.Btn.Stop}" Width="120" Click="BtnStop_Click"/>
-            <Separator Width="16"/>
-            <Button x:Name="BtnScanOnce" Content="{DynamicResource Scan.Btn.ScanOnce}" Width="140" Click="BtnScanOnce_Click"/>
-        </StackPanel>
-
-        <!-- Последний результат -->
-        <Border Grid.Row="2" Padding="12" Background="#FFFFFFFF" BorderBrush="#FFE5E7EB" BorderThickness="1" CornerRadius="8" Margin="0,0,0,12">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource Scan.LastResult}" Style="{StaticResource SectionHeader}"/>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{DynamicResource Scan.Group}" Margin="0,0,8,0"/>
-                        <TextBlock x:Name="TxtLastGroup" FontWeight="Bold" Text="—"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                        <TextBlock Text="{DynamicResource Scan.Time}" Margin="0,0,8,0"/>
-                        <TextBlock x:Name="TxtLastTime" Text="—"/>
-                    </StackPanel>
-                </StackPanel>
-                <StackPanel Grid.Column="1">
-                    <TextBlock Text="{DynamicResource Scan.Sizes}" Style="{StaticResource SectionHeader}"/>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="X:" Margin="0,0,6,0"/>
-                        <TextBlock x:Name="TxtX" Width="60"/>
-                        <TextBlock Text="Y:" Margin="12,0,6,0"/>
-                        <TextBlock x:Name="TxtY" Width="60"/>
-                        <TextBlock Text="Z:" Margin="12,0,6,0"/>
-                        <TextBlock x:Name="TxtZ" Width="60"/>
-                    </StackPanel>
-                </StackPanel>
-            </Grid>
+        <!-- ПОЛОСА РЕЗУЛЬТАТОВ (единая строка) -->
+        <Border Grid.Row="2" Padding="10" CornerRadius="8"
+            BorderBrush="#E5E7EB" BorderThickness="1" Background="#FBFBFB" Margin="0,0,0,12">
+            <TextBlock x:Name="TxtResultLine" FontSize="14" />
         </Border>
 
-        <!-- Две фотографии (заглушки) -->
+        <!-- ДВЕ ФОТОГРАФИИ -->
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <GroupBox Header="{DynamicResource Scan.BottomCam}" Margin="0,0,8,0">
-                <Grid Background="#FFFAFAFA">
-                    <Border BorderBrush="#FFE5E7EB" BorderThickness="1" CornerRadius="8" Margin="8">
-                        <Grid>
-                            <TextBlock Text="Превью появится позже" Foreground="#FF9CA3AF"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Grid>
-                    </Border>
+            <!-- Камера 1 -->
+            <Border BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="10" Padding="8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="{DynamicResource Scan.Photo.Cam1}" Foreground="#6B7280" Margin="0,0,0,6"/>
+                    <Grid Grid.Row="1">
+                        <Image x:Name="ImgCam1" Stretch="Uniform" VerticalAlignment="Stretch"/>
+                        <TextBlock x:Name="LblNoImg1" Text="{DynamicResource Scan.Photo.NoImage}"
+                       Foreground="#9CA3AF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
                 </Grid>
-            </GroupBox>
+            </Border>
 
-            <GroupBox Header="{DynamicResource Scan.SideCam}" Grid.Column="1" Margin="8,0,0,0">
-                <Grid Background="#FFFAFAFA">
-                    <Border BorderBrush="#FFE5E7EB" BorderThickness="1" CornerRadius="8" Margin="8">
-                        <Grid>
-                            <TextBlock Text="Превью появится позже" Foreground="#FF9CA3AF"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Grid>
-                    </Border>
+            <!-- Камера 2 -->
+            <Border Grid.Column="2" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="10" Padding="8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="{DynamicResource Scan.Photo.Cam2}" Foreground="#6B7280" Margin="0,0,0,6"/>
+                    <Grid Grid.Row="1">
+                        <Image x:Name="ImgCam2" Stretch="Uniform" VerticalAlignment="Stretch"/>
+                        <TextBlock x:Name="LblNoImg2" Text="{DynamicResource Scan.Photo.NoImage}"
+                       Foreground="#9CA3AF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
                 </Grid>
-            </GroupBox>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>

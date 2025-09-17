@@ -64,7 +64,7 @@ namespace RoboScanner.Services
         {
             if (!_all.TryGetValue(index, out var gs))
             {
-                gs = new GroupStat { Index = index, Name = $"Группа {index}", Limit = LimitPerGroup };
+                gs = new GroupStat { Index = index, Name = $"Group {index}", Limit = LimitPerGroup };
                 _all[index] = gs;
             }
 
@@ -151,7 +151,7 @@ namespace RoboScanner.Services
                     _all[p.Index] = new GroupStat
                     {
                         Index = p.Index,
-                        Name = $"Группа {p.Index}",
+                        Name = $"Group {p.Index}",
                         Count = p.Count,
                         LastX = p.LastX,
                         LastY = p.LastY,
