@@ -1,8 +1,171 @@
 ﻿<UserControl x:Class="RoboScanner.Views.GroupsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+
+        <!-- Заголовок страницы (слева сверху) -->
+        <Style x:Key="GroupsPageHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+
+        <!-- Заголовок внутри карточки (на шапке) -->
+        <Style x:Key="CardTitleText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+        </Style>
+
+        <!-- СНАЧАЛА: мини-кнопка-иконка (чтобы её видели любые StaticResource ниже) -->
+        <Style x:Key="IconMiniButton" TargetType="Button">
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1A000000"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль большой карточки -->
+        <Style x:Key="GroupCardButton" TargetType="Button">
+            <Setter Property="Width" Value="280"/>
+            <Setter Property="Height" Value="180"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Background" Value="#F0F9FF"/>
+            <!-- светло-голубой -->
+            <Setter Property="BorderBrush" Value="#BAE6FD"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="16">
+                            <!-- ВАЖНО: ContentPresenter, иначе контент кнопки не отрисуется -->
+                            <ContentPresenter
+                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <!-- Красная при переполнении -->
+                <DataTrigger Binding="{Binding IsFull}" Value="True">
+                    <Setter Property="Background" Value="#FFFEE2E2"/>
+                    <Setter Property="BorderBrush" Value="#FFDC2626"/>
+                </DataTrigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#60A5FA"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+
     <Grid Margin="16">
-        <TextBlock Text="Группы — текущее состояние (счётчики)" FontSize="18" FontWeight="SemiBold"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок страницы -->
+        <TextBlock Text="Группы" Style="{StaticResource GroupsPageHeader}" />
+
+        <!-- Сетка карточек -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl x:Name="Items" ItemsSource="{Binding ActiveGroups}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Style="{StaticResource GroupCardButton}"
+                    Click="GroupCard_Click"
+                    Tag="{Binding Index}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <!-- Шапка -->
+                                    <RowDefinition Height="*"/>
+                                    <!-- Счётчик -->
+                                    <RowDefinition Height="Auto"/>
+                                    <!-- Последние X/Y/Z -->
+                                </Grid.RowDefinitions>
+
+                                <!-- ШАПКА: немного темнее фона карточки -->
+                                <Border Grid.Row="0" Background="#E0F2FE" CornerRadius="16,16,0,0" Padding="12,6">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Заголовок по центру всей шапки -->
+                                        <TextBlock Grid.ColumnSpan="2"
+                               Text="{Binding Name}"
+                               Style="{StaticResource CardTitleText}"/>
+
+                                        <!-- Корзина справа -->
+                                        <Button Grid.Column="1"
+                            Style="{StaticResource IconMiniButton}"
+                            ToolTip="Очистить группу"
+                            Tag="{Binding Index}"
+                            Click="TinyDelete_Click">
+                                            <!-- MDL2 Trash -->
+                                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE74D;" FontSize="13"/>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Большой счётчик по центру -->
+                                <TextBlock Grid.Row="1"
+                           Text="{Binding Count}"
+                           FontSize="48" FontWeight="Bold"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                                <!-- Последний замер (без времени) -->
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,12">
+                                    <TextBlock Text="Last: " Foreground="#6B7280"/>
+                                    <TextBlock>
+                    <Run Text="X="/><Run Text="{Binding LastX, StringFormat={}{0:F2}, TargetNullValue=—}"/><Run Text="  "/>
+                    <Run Text="Y="/><Run Text="{Binding LastY, StringFormat={}{0:F2}, TargetNullValue=—}"/><Run Text="  "/>
+                    <Run Text="Z="/><Run Text="{Binding LastZ, StringFormat={}{0:F2}, TargetNullValue=—}"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>
 

@@ -22,6 +22,7 @@ namespace RoboScanner.Views
             GridRules.CommitEdit(DataGridEditingUnit.Row, true);
 
             _rules.Save();
+            GroupsService.Instance.RefreshFromRules();  // ← добавили
             MessageBox.Show(S("GroupSetup.SaveOk.Body"), S("GroupSetup.SaveOk.Title"),
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
@@ -29,6 +30,7 @@ namespace RoboScanner.Views
         private void BtnLoad_Click(object sender, RoutedEventArgs e)
         {
             _rules.Load();
+            GroupsService.Instance.RefreshFromRules();  // ← добавили
             MessageBox.Show(S("GroupSetup.LoadOk.Body"), S("GroupSetup.LoadOk.Title"),
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
@@ -39,6 +41,7 @@ namespace RoboScanner.Views
         MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 _rules.ResetDefaults();
+                GroupsService.Instance.RefreshFromRules();  // ← добавили
             }
         }
     }

@@ -25,7 +25,7 @@ namespace RoboScanner.Services
                 Rules.Add(new GroupRule
                 {
                     Index = i + 1,
-                    Name = $"Группа {i + 1}",
+                    Name = $"Group {i + 1}",
                     Description = "",
                     MaxX = (i + 1) * 10.0,
                     MaxY = null,
