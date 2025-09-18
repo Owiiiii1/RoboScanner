@@ -34,5 +34,16 @@ namespace RoboScanner.Localization
             foreach (Window w in Application.Current.Windows)
                 w.Language = xml;
         }
+
+        /// <summary>
+        /// Возвращает локализованную строку по ключу из Application.Resources.
+        /// Если ключ не найден — возвращает сам ключ.
+        /// </summary>
+        public static string Get(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key)) return string.Empty;
+            var res = Application.Current?.TryFindResource(key);
+            return res?.ToString() ?? key;
+        }
     }
 }

@@ -137,8 +137,35 @@
     <sys:String x:Key="Stats.Placeholder.Second">(Widgets area #2)</sys:String>
     <sys:String x:Key="Stats.Placeholder.Third">(Widgets area #3)</sys:String>
 
+    <!-- RoboGrroup Settings -->
+    <sys:String x:Key="Settings.Groups.SectionTitle">Robot groups settings</sys:String>
+    <sys:String x:Key="Settings.Groups.Label">Group</sys:String>
+    <sys:String x:Key="Settings.Groups.Button.Open">Settings</sys:String>
 
+    <sys:String x:Key="Group.Window.Title">Group settings</sys:String>
+    <sys:String x:Key="Group.Field.Name">Group name</sys:String>
+    <sys:String x:Key="Group.Header.Connection">Connection (Modbus TCP)</sys:String>
+    <sys:String x:Key="Group.Field.Host">IP address (Host)</sys:String>
+    <sys:String x:Key="Group.Field.Port">Port</sys:String>
+    <sys:String x:Key="Group.Field.UnitId">UnitId (SlaveId)</sys:String>
+    <sys:String x:Key="Group.Header.Exchange">Exchange</sys:String>
+    <sys:String x:Key="Group.Field.Timeout">Timeout (ms)</sys:String>
+    <sys:String x:Key="Group.Header.MainCoil">Main channel</sys:String>
+    <sys:String x:Key="Group.Field.Coil">Coil address (0–29)</sys:String>
+    <sys:String x:Key="Group.Field.Pulse">Pulse time (sec)</sys:String>
 
+    <sys:String x:Key="Common.Save">Save</sys:String>
+    <sys:String x:Key="Common.Cancel">Cancel</sys:String>
+
+    <sys:String x:Key="Msg.SelectGroup">Select a group.</sys:String>
+    <sys:String x:Key="Msg.PortInvalid">Port must be &gt; 0.</sys:String>
+    <sys:String x:Key="Msg.CoilRange">Coil address must be 0–29.</sys:String>
+    <sys:String x:Key="Msg.PulseNegative">Pulse seconds can't be negative.</sys:String>
+
+    <sys:String x:Key="Groups.StartRobot">Start robot</sys:String>
+    <sys:String x:Key="Group.Field.Pulse.Tooltip">
+        How many seconds to keep the relay ON, then turn it OFF. Leave empty or 0 to keep it ON without auto-off.
+    </sys:String>
 
 
 

@@ -136,8 +136,35 @@
     <sys:String x:Key="Stats.Placeholder.Second">(Qui appariranno i widget #2)</sys:String>
     <sys:String x:Key="Stats.Placeholder.Third">(Qui appariranno i widget #3)</sys:String>
 
+    <!-- RoboGrroup Settings -->
 
+    <sys:String x:Key="Settings.Groups.SectionTitle">Impostazioni gruppi robot</sys:String>
+    <sys:String x:Key="Settings.Groups.Label">Gruppo</sys:String>
+    <sys:String x:Key="Settings.Groups.Button.Open">Impostazioni</sys:String>
 
+    <sys:String x:Key="Group.Window.Title">Impostazioni gruppo</sys:String>
+    <sys:String x:Key="Group.Field.Name">Nome del gruppo</sys:String>
+    <sys:String x:Key="Group.Header.Connection">Connessione (Modbus TCP)</sys:String>
+    <sys:String x:Key="Group.Field.Host">Indirizzo IP (Host)</sys:String>
+    <sys:String x:Key="Group.Field.Port">Porta</sys:String>
+    <sys:String x:Key="Group.Field.UnitId">UnitId (SlaveId)</sys:String>
+    <sys:String x:Key="Group.Header.Exchange">Scambio</sys:String>
+    <sys:String x:Key="Group.Field.Timeout">Timeout (ms)</sys:String>
+    <sys:String x:Key="Group.Header.MainCoil">Canale principale</sys:String>
+    <sys:String x:Key="Group.Field.Coil">Indirizzo coil (0–29)</sys:String>
+    <sys:String x:Key="Group.Field.Pulse">Tempo impulso (sec)</sys:String>
 
+    <sys:String x:Key="Common.Save">Salva</sys:String>
+    <sys:String x:Key="Common.Cancel">Annulla</sys:String>
+
+    <sys:String x:Key="Msg.SelectGroup">Seleziona un gruppo.</sys:String>
+    <sys:String x:Key="Msg.PortInvalid">La porta deve essere &gt; 0.</sys:String>
+    <sys:String x:Key="Msg.CoilRange">L'indirizzo coil deve essere 0–29.</sys:String>
+    <sys:String x:Key="Msg.PulseNegative">I secondi dell'impulso non possono essere negativi.</sys:String>
+
+    <sys:String x:Key="Groups.StartRobot">Avvio robot</sys:String>
+    <sys:String x:Key="Group.Field.Pulse.Tooltip">
+        Quanti secondi mantenere il relè acceso, poi spegnerlo. Lasciare vuoto o 0 per tenerlo acceso senza spegnimento automatico.
+    </sys:String>
 
 </ResourceDictionary>

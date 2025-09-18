@@ -10,7 +10,36 @@
             <RadioButton x:Name="RbEN" Content="{DynamicResource Settings.Lang.EN}" Tag="en" Margin="0,0,16,0" Checked="Lang_Checked"/>
             <RadioButton x:Name="RbIT" Content="{DynamicResource Settings.Lang.IT}" Tag="it" Checked="Lang_Checked"/>
         </StackPanel>
+
+        <!-- === НАСТРОЙКИ ГРУПП РОБОТА === -->
+        <Separator Margin="0,16,0,8"/>
+        <TextBlock Text="{DynamicResource Settings.Groups.SectionTitle}" FontWeight="Bold" FontSize="14" Margin="0,0,0,8"/>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Horizontal" Grid.Column="0">
+                <TextBlock Text="{DynamicResource Settings.Groups.Label}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                
+                <ComboBox x:Name="CbRobotGroup" 
+                            Width="200"
+                            DisplayMemberPath="Name"
+                            SelectedValuePath="Index"/>
+                
+            </StackPanel>
+
+            <Button Grid.Column="1" Content="{DynamicResource Settings.Groups.Button.Open}" Width="120" Click="OpenGroupSettings_Click"/>
+        </Grid>
+
+
+
+
     </StackPanel>
+    
+    
 </UserControl>
 
 

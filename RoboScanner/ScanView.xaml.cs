@@ -92,6 +92,39 @@ namespace RoboScanner.Views
 
 
             var (groupIndex, groupName, x, y, z) = sim.Value;
+
+            // 1) Определяем привязанную робо-группу для этой скан-группы
+            var rule = RulesService.Instance.Rules.FirstOrDefault(r => r.Index == groupIndex);
+            var robotIdx = rule?.RobotGroup;
+
+            // 2) Если есть привязка — берём настройки из RobotGroups
+            if (robotIdx.HasValue)
+            {
+                var rg = RoboScanner.Models.RobotGroups.Get(robotIdx.Value);
+
+                // Пока без реального Modbus — просто залогируем, что бы включили
+                _log.Info("Relay",
+                    "Would trigger relay for scan result",
+                    new
+                    {
+                        ScanGroup = groupIndex,
+                        RobotGroupIndex = robotIdx.Value,
+                        rg.Name,
+                        rg.Host,
+                        rg.Port,
+                        rg.UnitId,
+                        Coil = rg.PrimaryCoilAddress,
+                        PulseSeconds = rg.PulseSeconds
+                    });
+
+                // TODO (позже): здесь вызовем Modbus-сервис
+                // await _relay.TriggerAsync(rg, CancellationToken.None);
+            }
+            else
+            {
+                _log.Warn("Relay", $"No robot-group mapping for scan-group {groupIndex}");
+            }
+
             var now = DateTime.Now;
             
 
@@ -145,7 +178,7 @@ namespace RoboScanner.Views
             // берём только ВКЛЮЧЁННЫЕ группы
             var rules = RulesService.Instance.Rules
                 .Where(r => r.IsActive)                 // ключевое изменение
-                .Where(r => r.RobotGroup.HasValue)   // раскомментируй, если нужно требовать привязку к «робо-группе»
+                .Where(r => r.RobotGroup.HasValue)   
                 .ToList();
 
             if (rules.Count == 0) return null;

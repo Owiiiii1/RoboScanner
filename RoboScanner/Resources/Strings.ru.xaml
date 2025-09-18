@@ -144,7 +144,34 @@
     <sys:String x:Key="Stats.Placeholder.Third">(Здесь появятся виджеты статистики №3)</sys:String>
 
 
+    <!-- RoboGrroup Settings -->
 
+    <sys:String x:Key="Settings.Groups.SectionTitle">Настройки групп робота</sys:String>
+    <sys:String x:Key="Settings.Groups.Label">Группа</sys:String>
+    <sys:String x:Key="Settings.Groups.Button.Open">Настройки</sys:String>
 
+    <sys:String x:Key="Group.Window.Title">Настройки группы</sys:String>
+    <sys:String x:Key="Group.Field.Name">Имя группы</sys:String>
+    <sys:String x:Key="Group.Header.Connection">Подключение (Modbus TCP)</sys:String>
+    <sys:String x:Key="Group.Field.Host">IP-адрес (Host)</sys:String>
+    <sys:String x:Key="Group.Field.Port">Порт</sys:String>
+    <sys:String x:Key="Group.Field.UnitId">UnitId (SlaveId)</sys:String>
+    <sys:String x:Key="Group.Header.Exchange">Обмен</sys:String>
+    <sys:String x:Key="Group.Field.Timeout">Таймаут (мс)</sys:String>
+    <sys:String x:Key="Group.Header.MainCoil">Главный канал</sys:String>
+    <sys:String x:Key="Group.Field.Coil">Адрес катушки (0–29)</sys:String>
+    <sys:String x:Key="Group.Field.Pulse">Время импульса (сек)</sys:String>
 
+    <sys:String x:Key="Common.Save">Сохранить</sys:String>
+    <sys:String x:Key="Common.Cancel">Отмена</sys:String>
+
+    <sys:String x:Key="Msg.SelectGroup">Выберите группу.</sys:String>
+    <sys:String x:Key="Msg.PortInvalid">Порт должен быть &gt; 0.</sys:String>
+    <sys:String x:Key="Msg.CoilRange">Адрес катушки должен быть 0–29.</sys:String>
+    <sys:String x:Key="Msg.PulseNegative">Время импульса не может быть отрицательным.</sys:String>
+
+    <sys:String x:Key="Groups.StartRobot">Старт робот</sys:String>
+    <sys:String x:Key="Group.Field.Pulse.Tooltip">
+        Сколько секунд держать реле включённым, затем выключить. Оставьте пусто или 0 — без авто-выключения.
+    </sys:String>
 </ResourceDictionary>
