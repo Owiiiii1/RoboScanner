@@ -39,6 +39,7 @@ namespace RoboScanner
             LogService.Instance.Info("App", "Application started", new { UILang = saved });
 
             var w = new MainWindow();
+            this.MainWindow = w;
             w.Show();
         }
     }

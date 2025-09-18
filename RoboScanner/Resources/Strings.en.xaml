@@ -57,6 +57,15 @@
     <sys:String x:Key="GroupSetup.ResetConfirm.Title">Reset</sys:String>
     <sys:String x:Key="GroupSetup.ResetConfirm.Body">Reset to 15 default groups?</sys:String>
 
+    <sys:String x:Key="GroupSetup.Col.Enable">Status</sys:String>
+    <sys:String x:Key="GroupSetup.Col.RobotGroup">Robot group</sys:String>
+   
+
+    <sys:String x:Key="GroupSetup.Toggle.Enable">Enable</sys:String>
+    <sys:String x:Key="GroupSetup.Toggle.Disable">Disable</sys:String>
+
+
+
     <!-- Log page -->
     <sys:String x:Key="Log.Title">Event log</sys:String>
     <sys:String x:Key="Log.OpenFile">Open file</sys:String>

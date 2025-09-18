@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace RoboScanner.Converters
+namespace RoboScanner.Helpers
 {
     public class NullableDoubleConverter : IValueConverter
     {

@@ -29,36 +29,36 @@ namespace RoboScanner.Services
         {
             var rules = RulesService.Instance.Rules;
 
-            // Активна группа, если хотя бы ОДНА ось задана (не null)
+            // ТЕПЕРЬ: активность только по чекбоксу IsActive
             var activeIndexes = rules
-                .Where(r => r.MaxX.HasValue || r.MaxY.HasValue || r.MaxZ.HasValue)
+                .Where(r => r.IsActive)
                 .Select(r => r.Index)
                 .ToHashSet();
 
-            // Обновить/создать все группы из правил
+            // обновляем/создаём все группы из правил
             foreach (var r in rules)
             {
-                var exists = _all.TryGetValue(r.Index, out var gs);
-                if (!exists)
+                if (!_all.TryGetValue(r.Index, out var gs))
                 {
                     gs = new GroupStat { Index = r.Index, Name = r.Name, Limit = LimitPerGroup };
                     _all[r.Index] = gs;
                 }
                 else
                 {
-                    gs.Name = r.Name; // имя может меняться
+                    gs.Name = r.Name;           // имя могло измениться
                     gs.Limit = LimitPerGroup;
                 }
             }
 
-            // Пересобрать коллекцию ActiveGroups
+            // пересобираем коллекцию активных
             ActiveGroups.Clear();
             foreach (var idx in activeIndexes.OrderBy(i => i))
                 ActiveGroups.Add(_all[idx]);
 
             RecomputePause();
-            SaveCounts(); // на всякий
+            SaveCounts();
         }
+
 
         public (GroupStat stat, bool justReachedLimit) AddItemToGroup(int index, double? x, double? y, double? z, DateTime? at = null)
         {

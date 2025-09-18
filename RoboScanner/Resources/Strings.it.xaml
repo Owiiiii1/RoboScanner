@@ -56,6 +56,15 @@
     <sys:String x:Key="GroupSetup.ResetConfirm.Title">Ripristino</sys:String>
     <sys:String x:Key="GroupSetup.ResetConfirm.Body">Ripristinare alle 15 impostazioni predefinite?</sys:String>
 
+    <sys:String x:Key="GroupSetup.Col.Enable">Stato</sys:String>
+    <sys:String x:Key="GroupSetup.Col.RobotGroup">Gruppo robot</sys:String>
+    
+
+    <sys:String x:Key="GroupSetup.Toggle.Enable">Abilita</sys:String>
+    <sys:String x:Key="GroupSetup.Toggle.Disable">Disabilita</sys:String>
+
+
+
     <!-- Log page -->
     <sys:String x:Key="Log.Title">Registro eventi</sys:String>
     <sys:String x:Key="Log.OpenFile">Apri file</sys:String>

@@ -61,6 +61,16 @@
     <sys:String x:Key="GroupSetup.LoadOk.Body">Правила загружены.</sys:String>
     <sys:String x:Key="GroupSetup.ResetConfirm.Title">Сброс</sys:String>
     <sys:String x:Key="GroupSetup.ResetConfirm.Body">Сбросить к 15 группам по умолчанию?</sys:String>
+    
+    <sys:String x:Key="GroupSetup.Col.Enable">Статус</sys:String>
+    <sys:String x:Key="GroupSetup.Col.RobotGroup">Группа робота</sys:String>
+    
+
+
+    <sys:String x:Key="GroupSetup.Toggle.Enable">Включить</sys:String>
+    <sys:String x:Key="GroupSetup.Toggle.Disable">Выключить</sys:String>
+
+
 
     <!-- Log page -->
     <sys:String x:Key="Log.Title">Лог событий</sys:String>

@@ -142,8 +142,10 @@ namespace RoboScanner.Views
         /// </summary>
         private (int groupIndex, string groupName, double x, double y, double z)? SimulateFromActiveGroups()
         {
+            // берём только ВКЛЮЧЁННЫЕ группы
             var rules = RulesService.Instance.Rules
-                .Where(r => r.MaxX.HasValue || r.MaxY.HasValue || r.MaxZ.HasValue)
+                .Where(r => r.IsActive)                 // ключевое изменение
+                .Where(r => r.RobotGroup.HasValue)   // раскомментируй, если нужно требовать привязку к «робо-группе»
                 .ToList();
 
             if (rules.Count == 0) return null;
@@ -169,6 +171,7 @@ namespace RoboScanner.Views
             string name = string.IsNullOrWhiteSpace(r.Name) ? $"Group {r.Index}" : r.Name;
             return (r.Index, name, x, y, z);
         }
+
 
         private void ShowPlaceholders()
         {
