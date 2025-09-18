@@ -26,7 +26,7 @@
                 
                 <ComboBox x:Name="CbRobotGroup" 
                             Width="200"
-                            DisplayMemberPath="Name"
+                            DisplayMemberPath="DisplayName"
                             SelectedValuePath="Index"/>
                 
             </StackPanel>

@@ -32,7 +32,7 @@ namespace RoboScanner
             _model = RobotGroups.Get(groupIndex);
             _vm = new Vm
             {
-                Header = $"{_model.Name} (#{_model.Index})",
+                Header = $"{_model.DisplayName} (#{_model.Index})",
                 Name = _model.Name,
                 Host = _model.Host,
                 Port = _model.Port,

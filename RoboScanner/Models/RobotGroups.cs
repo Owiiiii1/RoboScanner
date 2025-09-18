@@ -26,6 +26,28 @@ namespace RoboScanner.Models
         // Сколько держать реле включённым, после чего выключить (секунды).
         // Если 0 или null — "держать включенным" (импульс не применяется).
         public int? PulseSeconds { get; set; }
+
+        [JsonIgnore]
+        public string DisplayName
+        {
+            get
+            {
+                // Если это «Старт робот» (Index == 16) и имя не задано явно или стоит одно из дефолтных значений,
+                // показываем локализованную строку.
+                if (Index == 16)
+                {
+                    var n = Name?.Trim();
+                    if (string.IsNullOrEmpty(n) ||
+                        n.Equals("Старт робот", StringComparison.OrdinalIgnoreCase) ||
+                        n.Equals("Start robot", StringComparison.OrdinalIgnoreCase) ||
+                        n.Equals("StartRobot", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return RoboScanner.Localization.Loc.Get("Groups.StartRobot");
+                    }
+                }
+                return Name ?? "";
+            }
+        }
     }
 
     // Структура файла JSON
