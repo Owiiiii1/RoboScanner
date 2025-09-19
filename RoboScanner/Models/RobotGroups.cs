@@ -147,6 +147,17 @@ namespace RoboScanner.Models
                 TimeoutMs = 1500
             };
 
+            // после создания 1..15 и 16-й
+            _groups[17] = new RobotGroup
+            {
+                Index = 17,
+                Name = "InputTrigger",   // (или Loc.Get("Groups.InputTrigger") если хочешь локализацию)
+                Port = 502,
+                UnitId = 1,
+                TimeoutMs = 1500
+            };
+
+
             SelectedIndex = 1;
             Save();                                     // +++
         }
@@ -157,7 +168,7 @@ namespace RoboScanner.Models
 
         public static void Update(RobotGroup g)
         {
-            if (g.Index < 1 || g.Index > 16) return;
+            if (g.Index < 1 || g.Index > 17) return;
             lock (_sync)                                   // +++
             {
                 _groups[g.Index] = g;
@@ -197,21 +208,26 @@ namespace RoboScanner.Models
 
                 // нормализуем 1..16 (защита от ручного редактирования)
                 _groups.Clear();
-                foreach (var g in store.Groups.Where(x => x.Index >= 1 && x.Index <= 16)
+                foreach (var g in store.Groups.Where(x => x.Index >= 1 && x.Index <= 17)
                                                .GroupBy(x => x.Index)
                                                .Select(x => x.First()))
                 {
                     _groups[g.Index] = g;
                 }
 
-                for (int i = 1; i <= 16; i++)
+                for (int i = 1; i <= 17; i++)
                 {
                     if (!_groups.ContainsKey(i))
                     {
+                        var name =
+                            i == 16 ? "Start robot" :
+                            i == 17 ? "InputTrigger" :
+                            $"Group {i}";
+
                         _groups[i] = new RobotGroup
                         {
                             Index = i,
-                            Name = i == 16 ? "Start robot" : $"Group {i}",
+                            Name = name,
                             Port = 502,
                             UnitId = 1,
                             TimeoutMs = 1500
@@ -219,7 +235,13 @@ namespace RoboScanner.Models
                     }
                 }
 
-                SelectedIndex = (store.SelectedIndex >= 1 && store.SelectedIndex <= 16)
+                if (_groups.TryGetValue(17, out var g17) &&
+    string.Equals(g17.Name, "Group 17", StringComparison.OrdinalIgnoreCase))
+                {
+                    g17.Name = "InputTrigger";
+                }
+
+                SelectedIndex = (store.SelectedIndex >= 1 && store.SelectedIndex <= 17)
                                 ? store.SelectedIndex : 1;
 
                 // Прочитаем карту привязок(может отсутствовать в старом файле)
@@ -227,7 +249,7 @@ namespace RoboScanner.Models
 
                 // зачистим неверные индексы (оставим только 1..16)
                 _scanToRobot = _scanToRobot
-                    .Where(p => p.Value >= 1 && p.Value <= 16)
+                    .Where(p => p.Value >= 1 && p.Value <= 17)
                     .ToDictionary(p => p.Key, p => p.Value); // +++
 
                 return true;

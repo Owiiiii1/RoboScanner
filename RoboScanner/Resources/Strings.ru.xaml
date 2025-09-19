@@ -159,7 +159,7 @@
     <sys:String x:Key="Group.Header.Exchange">Обмен</sys:String>
     <sys:String x:Key="Group.Field.Timeout">Таймаут (мс)</sys:String>
     <sys:String x:Key="Group.Header.MainCoil">Главный канал</sys:String>
-    <sys:String x:Key="Group.Field.Coil">Адрес катушки (0–29)</sys:String>
+    <sys:String x:Key="Group.Field.Coil">Адрес катушки</sys:String>
     <sys:String x:Key="Group.Field.Pulse">Время импульса (сек)</sys:String>
 
     <sys:String x:Key="Common.Save">Сохранить</sys:String>

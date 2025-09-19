@@ -151,7 +151,7 @@
     <sys:String x:Key="Group.Header.Exchange">Scambio</sys:String>
     <sys:String x:Key="Group.Field.Timeout">Timeout (ms)</sys:String>
     <sys:String x:Key="Group.Header.MainCoil">Canale principale</sys:String>
-    <sys:String x:Key="Group.Field.Coil">Indirizzo coil (0–29)</sys:String>
+    <sys:String x:Key="Group.Field.Coil">Indirizzo coil</sys:String>
     <sys:String x:Key="Group.Field.Pulse">Tempo impulso (sec)</sys:String>
 
     <sys:String x:Key="Common.Save">Salva</sys:String>

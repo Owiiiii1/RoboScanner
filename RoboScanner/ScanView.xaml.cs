@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using RoboScanner.Models;
 using RoboScanner.Services;
 
 namespace RoboScanner.Views
@@ -14,8 +16,11 @@ namespace RoboScanner.Views
         private readonly GroupsService _groups = GroupsService.Instance;
         private readonly LogService _log = LogService.Instance;
 
+        private ModbusInputWatcher? _inputWatcher;
+        private bool _isScanInProgress;
+
         private string L(string key, string fallback) =>
-    (TryFindResource(key) as string) ?? fallback;
+            (TryFindResource(key) as string) ?? fallback;
 
         public ScanView()
         {
@@ -24,11 +29,62 @@ namespace RoboScanner.Views
             UpdateButtons();
         }
 
+        #region Auto start by LOGO! (group 16 / M16=Coil 8272)
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Берём настройки "Старт робот" (группа 16)
+                var g = RobotGroups.Get(17);
+                if (!string.IsNullOrWhiteSpace(g.Host) && g.PrimaryCoilAddress.HasValue)
+                {
+                    _inputWatcher = new ModbusInputWatcher(
+                        host: g.Host,
+                        port: g.Port,
+                        unitId: g.UnitId,
+                        coilAddressOneBased: g.PrimaryCoilAddress.Value, // 8273 (M17)
+                        pollMs: 80
+                    );
+
+                    _inputWatcher.RisingEdge += async (_, __) =>
+                    {
+                        if (!_app.IsRunning) return;          // автозапуск только в режиме RUN
+                        if (_isScanInProgress) return;        // защита от повторов
+                        _isScanInProgress = true;
+                        try { await Dispatcher.InvokeAsync(StartScanAsync); }
+                        catch { /* лог при желании */ }
+                        finally { _isScanInProgress = false; }
+                    };
+
+                    _inputWatcher.Start();
+                    _log.Info("InputWatcher", "Started (Group16)", new { g.Host, g.Port, g.UnitId, g.PrimaryCoilAddress });
+                }
+                else
+                {
+                    _log.Warn("InputWatcher", "Group 16 not configured (Host/Coil)");
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.Error("InputWatcher", "Failed to start", ex);
+            }
+        }
+
+        private async void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (_inputWatcher != null)
+            {
+                await _inputWatcher.StopAsync();
+                _inputWatcher = null;
+                _log.Info("InputWatcher", "Stopped");
+            }
+        }
+        #endregion
+
         private void UpdateButtons()
         {
             if (_app.IsRunning)
             {
-                // Start — green; Stop/Scan enabled
                 BtnStart.Background = new SolidColorBrush(Color.FromRgb(34, 197, 94)); // #22C55E
                 BtnStart.Foreground = Brushes.White;
                 BtnStop.IsEnabled = true;
@@ -36,7 +92,6 @@ namespace RoboScanner.Views
             }
             else
             {
-                // Reset Start visuals; Stop/Scan disabled
                 BtnStart.ClearValue(Button.BackgroundProperty);
                 BtnStart.ClearValue(Button.ForegroundProperty);
                 BtnStop.IsEnabled = false;
@@ -63,9 +118,15 @@ namespace RoboScanner.Views
             _log.Info("Application", "Stop button clicked");
         }
 
-        private void BtnScanOnce_Click(object sender, RoutedEventArgs e)
+        private async void BtnScanOnce_Click(object sender, RoutedEventArgs e)
         {
-            _log.Info("Scan", "Scan button clicked");
+            await StartScanAsync();
+        }
+
+        // === Общая логика одноразового скана (кнопка и автозапуск вызывают сюда) ===
+        private async Task StartScanAsync()
+        {
+            _log.Info("Scan", "Scan requested");
 
             if (!_app.IsRunning)
             {
@@ -90,19 +151,17 @@ namespace RoboScanner.Views
                 return;
             }
 
-
             var (groupIndex, groupName, x, y, z) = sim.Value;
 
             // 1) Определяем привязанную робо-группу для этой скан-группы
             var rule = RulesService.Instance.Rules.FirstOrDefault(r => r.Index == groupIndex);
             var robotIdx = rule?.RobotGroup;
 
-            // 2) Если есть привязка — берём настройки из RobotGroups
+            // 2) Если есть привязка — берём настройки из RobotGroups (пока только лог)
             if (robotIdx.HasValue)
             {
                 var rg = RoboScanner.Models.RobotGroups.Get(robotIdx.Value);
 
-                // Пока без реального Modbus — просто залогируем, что бы включили
                 _log.Info("Relay",
                     "Would trigger relay for scan result",
                     new
@@ -117,7 +176,7 @@ namespace RoboScanner.Views
                         PulseSeconds = rg.PulseSeconds
                     });
 
-                // TODO (позже): здесь вызовем Modbus-сервис
+                // TODO: здесь позже вызов Modbus-выхода
                 // await _relay.TriggerAsync(rg, CancellationToken.None);
             }
             else
@@ -126,9 +185,8 @@ namespace RoboScanner.Views
             }
 
             var now = DateTime.Now;
-            
 
-            // Result line: <GroupName> — X..  Y..  Z..
+            // Result line
             string xLbl = Axis("Scan.Axis.X", "X: ");
             string yLbl = Axis("Scan.Axis.Y", "Y: ");
             string zLbl = Axis("Scan.Axis.Z", "Z: ");
@@ -137,7 +195,7 @@ namespace RoboScanner.Views
             // Placeholder images (replace with real frames)
             ShowPlaceholders();
 
-            // Update global state (not UI-bound here, just for history/status)
+            // Update global state
             _app.SetLastScan(groupIndex, x, y, z, now);
             _app.OpState = OperationState.Done;
 
@@ -167,6 +225,7 @@ namespace RoboScanner.Views
                     MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -175,10 +234,9 @@ namespace RoboScanner.Views
         /// </summary>
         private (int groupIndex, string groupName, double x, double y, double z)? SimulateFromActiveGroups()
         {
-            // берём только ВКЛЮЧЁННЫЕ группы
             var rules = RulesService.Instance.Rules
-                .Where(r => r.IsActive)                 // ключевое изменение
-                .Where(r => r.RobotGroup.HasValue)   
+                .Where(r => r.IsActive)
+                .Where(r => r.RobotGroup.HasValue)
                 .ToList();
 
             if (rules.Count == 0) return null;
@@ -204,7 +262,6 @@ namespace RoboScanner.Views
             string name = string.IsNullOrWhiteSpace(r.Name) ? $"Group {r.Index}" : r.Name;
             return (r.Index, name, x, y, z);
         }
-
 
         private void ShowPlaceholders()
         {

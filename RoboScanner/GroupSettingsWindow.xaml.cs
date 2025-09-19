@@ -55,12 +55,12 @@ namespace RoboScanner
                 return;
             }
 
-            if (_vm.PrimaryCoilAddress is ushort coil && coil > 29)
-            {
-                MessageBox.Show(Loc.Get("Msg.CoilRange"), Loc.Get("Group.Window.Title"),
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            //if (_vm.PrimaryCoilAddress is ushort coil && coil > 29)
+            //{
+            //    MessageBox.Show(Loc.Get("Msg.CoilRange"), Loc.Get("Group.Window.Title"),
+            //        MessageBoxButton.OK, MessageBoxImage.Warning);
+            //    return;
+            //}
 
             if (_vm.PulseSeconds is int sec && sec < 0)
             {
