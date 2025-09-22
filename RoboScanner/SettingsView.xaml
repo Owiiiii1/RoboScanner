@@ -23,23 +23,55 @@
 
             <StackPanel Orientation="Horizontal" Grid.Column="0">
                 <TextBlock Text="{DynamicResource Settings.Groups.Label}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                
+
                 <ComboBox x:Name="CbRobotGroup" 
                             Width="200"
                             DisplayMemberPath="DisplayName"
                             SelectedValuePath="Index"/>
-                
+
             </StackPanel>
 
             <Button Grid.Column="1" Content="{DynamicResource Settings.Groups.Button.Open}" Width="120" Click="OpenGroupSettings_Click"/>
         </Grid>
 
+        <!-- Камеры -->
+        <Separator Margin="0,16,0,8"/>
+        <Grid Margin="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="9*"/>
+                <ColumnDefinition Width="131*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="8"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="{DynamicResource Settings.Camera1}" VerticalAlignment="Center"/>
+            <ComboBox x:Name="CbCamera1" Grid.Column="1" MinWidth="280"
+              DisplayMemberPath="Name" SelectedValuePath="Moniker" Grid.ColumnSpan="3" Margin="16,0,0,8" Grid.RowSpan="2"/>
+
+            <TextBlock Grid.Row="2" Text="{DynamicResource Settings.Camera2}" VerticalAlignment="Center"/>
+            <ComboBox x:Name="CbCamera2" Grid.Row="2" Grid.Column="1" MinWidth="280"
+              DisplayMemberPath="Name" SelectedValuePath="Moniker" Grid.ColumnSpan="3" Margin="16,0,0,0"/>
+
+            <!-- опционально: кнопка обновить -->
+            <Button Grid.Column="3" Content="{DynamicResource Settings.Refresh}" Click="RefreshCameras_Click"
+            VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="261,0,0,0" />
+        </Grid>
+
+
+
+
 
 
 
     </StackPanel>
-    
-    
+
+
 </UserControl>
 
 

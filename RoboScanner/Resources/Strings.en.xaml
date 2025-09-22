@@ -36,6 +36,10 @@
     <sys:String x:Key="Settings.Lang.EN">English</sys:String>
     <sys:String x:Key="Settings.Lang.IT">Italiano</sys:String>
 
+    <sys:String x:Key="Settings.Camera1">Camera 1</sys:String>
+    <sys:String x:Key="Settings.Camera2">Camera 2</sys:String>
+    <sys:String x:Key="Settings.Refresh">Refresh</sys:String>
+
     <!-- Group Setup -->
     <sys:String x:Key="GroupSetup.Title">Group Setup</sys:String>
     <sys:String x:Key="GroupSetup.Save">Save</sys:String>

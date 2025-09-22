@@ -34,5 +34,29 @@ namespace RoboScanner.Properties {
                 this["UILang"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Camera1Id {
+            get {
+                return ((string)(this["Camera1Id"]));
+            }
+            set {
+                this["Camera1Id"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Camera2Id {
+            get {
+                return ((string)(this["Camera2Id"]));
+            }
+            set {
+                this["Camera2Id"] = value;
+            }
+        }
     }
 }

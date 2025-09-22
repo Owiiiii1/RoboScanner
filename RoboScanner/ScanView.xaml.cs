@@ -7,6 +7,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using RoboScanner.Models;
 using RoboScanner.Services;
+using OpenCvSharp;
+using OpenCvSharp.WpfExtensions; // для ToWriteableBitmap()
 
 namespace RoboScanner.Views
 {
@@ -15,8 +17,9 @@ namespace RoboScanner.Views
         private readonly AppStateService _app = AppStateService.Instance;
         private readonly GroupsService _groups = GroupsService.Instance;
         private readonly LogService _log = LogService.Instance;
+        private CaptureManager Capture => CaptureManager.Instance;
 
-        
+
         private bool _isScanInProgress;
 
         private string L(string key, string fallback) =>
@@ -67,7 +70,6 @@ namespace RoboScanner.Views
 
 
         }
-
 
         private void UpdateButtons()
         {
@@ -120,7 +122,6 @@ namespace RoboScanner.Views
             }
         }
 
-
         private async void BtnScanOnce_Click(object sender, RoutedEventArgs e)
         {
             if (RelayGate.IsBusy)
@@ -138,7 +139,6 @@ namespace RoboScanner.Views
             finally { _isScanInProgress = false; }
         }
 
-
         // === Общая логика одноразового скана (кнопка и автозапуск вызывают сюда) ===
         private async Task StartScanAsync()
         {
@@ -153,6 +153,47 @@ namespace RoboScanner.Views
             // статус: сканирование
             _app.OpState = OperationState.Scanning;
             UpdateButtons();
+
+            try
+            {
+                // === Захват одного кадра и показ в левом окне ===
+                var mat = await CaptureManager.Instance.CaptureOnceAsync(); // BGR Mat
+
+                //// RAW в левое окно
+                //var bmp = mat.ToWriteableBitmap();
+                //ImgCam1.Source = bmp;
+                //LblNoImg1.Visibility = Visibility.Collapsed;
+
+                // Бинаризация и вывод в первое окно
+                var bin = BinarizationService.Instance.Binarize(mat, new BinarizationService.Options
+                {
+                    // настройки по вкусу:
+                    UseAdaptive = false,      // true если фон неравномерен
+                    Invert = false,           // true если нужно инвертировать ч/б
+                    BlurKernel = 3,           // 0 чтобы отключить
+                    ManualThreshold = null    // например 128, если хочешь фикс-порог
+                });
+                //var bmpBin = bin.ToWriteableBitmap();
+                //ImgCam2.Source = bmpBin;
+                //LblNoImg2.Visibility = Visibility.Collapsed;
+
+                // 3) Для стабильного показа переведём в BGRA (WPF любит 32 bpp)
+                using var binColor = new Mat();
+                OpenCvSharp.Cv2.CvtColor(bin, binColor, ColorConversionCodes.GRAY2BGRA);
+
+                // 4) ПОКАЗЫВАЕМ ТОЛЬКО В ImgCam1
+                ImgCam1.Source = binColor.ToWriteableBitmap();
+                LblNoImg1.Visibility = Visibility.Collapsed;
+
+                // аккуратно освобождаем
+                bin.Dispose();
+                mat.Dispose();
+            }
+            catch (System.Exception ex)
+            {
+                _log.Error("Camera", "Capture failed", ex);
+            }
+
 
             try
             {
@@ -304,7 +345,6 @@ namespace RoboScanner.Views
             }
         }
 
-
         /// <summary>
         /// Picks a random ACTIVE group and generates X/Y/Z:
         /// for each axis: [Max/2 .. Max]; if Max is null → [0 .. 100].
@@ -340,12 +380,25 @@ namespace RoboScanner.Views
             return (r.Index, name, x, y, z);
         }
 
-        private void ShowPlaceholders()
+        private void ShowPlaceholders(bool force = false)
         {
-            ImgCam1.Source = MakePlaceholder(800, 600, Colors.LightSteelBlue);
-            ImgCam2.Source = MakePlaceholder(800, 600, Colors.LightSkyBlue);
-            LblNoImg1.Visibility = Visibility.Collapsed;
-            LblNoImg2.Visibility = Visibility.Collapsed;
+            // если уже есть фото — не трогаем (если явно не попросили)
+            //if (!force && (ImgCam1.Source != null || ImgCam2.Source != null))
+            //    return;
+
+            //ImgCam1.Source = MakePlaceholder(800, 600, Colors.LightSteelBlue);
+            //ImgCam2.Source = MakePlaceholder(800, 600, Colors.LightSkyBlue);
+            //LblNoImg1.Visibility = Visibility.Collapsed;
+            //LblNoImg2.Visibility = Visibility.Collapsed;
+            foreach (var img in new[] { ImgCam1, ImgCam2 })
+            {
+                if (force || img.Source == null)
+                {
+                    img.Source = MakePlaceholder(800, 600, Colors.LightGray);
+                }
+                
+            }
+
         }
 
         private BitmapSource MakePlaceholder(int w, int h, Color color)
