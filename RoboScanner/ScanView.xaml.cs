@@ -31,7 +31,13 @@ namespace RoboScanner.Views
             // Глобальный триггер запуска скана (живёт независимо от экрана)
             StartSignalWatcher.Instance.Triggered += async (_, __) =>
             {
-                if (!_app.IsRunning || _isScanInProgress) return;
+                if (!_app.IsRunning) return;
+
+                if (RelayGate.IsBusy)
+                {
+                    _log.Warn("Scan", $"Blocked by RelayGate: {RelayGate.Remaining.TotalSeconds:F1}s remaining");
+                    return;
+                }
                 if (_isScanInProgress) return;
 
                 _isScanInProgress = true;
@@ -117,8 +123,21 @@ namespace RoboScanner.Views
 
         private async void BtnScanOnce_Click(object sender, RoutedEventArgs e)
         {
-            await StartScanAsync();
+            if (RelayGate.IsBusy)
+            {
+                _log.Warn("Scan", $"Manual scan blocked by RelayGate: {RelayGate.Remaining.TotalSeconds:F1}s remaining");
+                MessageBox.Show(
+                    $"Scanning unavailable: relay pulse still active {RelayGate.Remaining.TotalSeconds:F0} sec.",
+                    "Busy", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            if (_isScanInProgress) return;
+            _isScanInProgress = true;
+            try { await StartScanAsync(); }
+            finally { _isScanInProgress = false; }
         }
+
 
         // === Общая логика одноразового скана (кнопка и автозапуск вызывают сюда) ===
         private async Task StartScanAsync()
@@ -158,24 +177,28 @@ namespace RoboScanner.Views
                 var rule = RulesService.Instance.Rules.FirstOrDefault(r => r.Index == groupIndex);
                 var robotIdx = rule?.RobotGroup;
 
-                // ==== Отработка выхода(ов) по Modbus ====
+                // ==== Отработка выхода(ов) по Modbus + блокировка повторного старта ====
+
+                int mappedPulseSec = 0;
+                int startPulseSec = 0;
+
                 if (robotIdx.HasValue)
                 {
-                    // 1) Привязанная к скан-группе робо-группа
                     var rg = RoboScanner.Models.RobotGroups.Get(robotIdx.Value);
+                    mappedPulseSec = (rg.PulseSeconds.HasValue && rg.PulseSeconds.Value > 0) ? rg.PulseSeconds.Value : 0;
+
+                    // 1) Жмём привязанную группу
                     if (!string.IsNullOrWhiteSpace(rg.Host) && rg.PrimaryCoilAddress.HasValue)
                     {
                         try
                         {
                             await ModbusOutputService.PulseAsync(
-                                host: rg.Host,
-                                port: rg.Port,
-                                unitId: rg.UnitId,
+                                host: rg.Host, port: rg.Port, unitId: rg.UnitId,
                                 coilAddressOneBased: rg.PrimaryCoilAddress.Value,
-                                pulseSeconds: rg.PulseSeconds
+                                pulseSeconds: mappedPulseSec > 0 ? mappedPulseSec : (int?)null
                             );
                             _log.Info("Relay", "Triggered mapped robot group",
-                                new { RobotGroupIndex = robotIdx.Value, rg.Host, rg.UnitId, rg.PrimaryCoilAddress, rg.PulseSeconds });
+                                new { RobotGroupIndex = robotIdx.Value, rg.Host, rg.UnitId, rg.PrimaryCoilAddress, PulseSeconds = mappedPulseSec });
                         }
                         catch (Exception ex)
                         {
@@ -187,24 +210,26 @@ namespace RoboScanner.Views
                         _log.Warn("Relay", $"Mapped robot group {robotIdx.Value} not configured (Host/Coil)");
                     }
 
-                    // 2) Дополнительно «Старт робот» (группа 16), если это не та же группа
+                    // 2) Дополнительно «Старт робот» (гр.16), если это не та же группа
                     const int StartRobotIndex = 16;
                     if (robotIdx.Value != StartRobotIndex)
                     {
                         var start = RoboScanner.Models.RobotGroups.Get(StartRobotIndex);
+                        startPulseSec =
+                            (start.PulseSeconds.HasValue && start.PulseSeconds.Value > 0) ? start.PulseSeconds.Value :
+                            (mappedPulseSec > 0 ? mappedPulseSec : 1); // умолчание: как у основной либо 1 сек
+
                         if (!string.IsNullOrWhiteSpace(start.Host) && start.PrimaryCoilAddress.HasValue)
                         {
                             try
                             {
                                 await ModbusOutputService.PulseAsync(
-                                    host: start.Host,
-                                    port: start.Port,
-                                    unitId: start.UnitId,
+                                    host: start.Host, port: start.Port, unitId: start.UnitId,
                                     coilAddressOneBased: start.PrimaryCoilAddress.Value,
-                                    pulseSeconds: start.PulseSeconds
+                                    pulseSeconds: startPulseSec
                                 );
                                 _log.Info("Relay", "Triggered Start Robot (group 16)",
-                                    new { start.Host, start.UnitId, start.PrimaryCoilAddress, start.PulseSeconds });
+                                    new { start.Host, start.UnitId, start.PrimaryCoilAddress, PulseSeconds = startPulseSec });
                             }
                             catch (Exception ex)
                             {
@@ -221,6 +246,11 @@ namespace RoboScanner.Views
                 {
                     _log.Warn("Relay", $"No robot-group mapping for scan-group {groupIndex}");
                 }
+
+                // НОВОЕ: блокируем повторный старт на время активных реле (берём максимум)
+                int blockSec = Math.Max(mappedPulseSec, startPulseSec);
+                if (blockSec <= 0) blockSec = 1; // перестраховка, хотя бы 1 сек
+                RelayGate.BlockFor(TimeSpan.FromSeconds(blockSec));
 
                 // ==== Обновление UI и состояния ====
                 var now = DateTime.Now;
