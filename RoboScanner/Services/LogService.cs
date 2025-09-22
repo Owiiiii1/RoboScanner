@@ -29,36 +29,86 @@ namespace RoboScanner.Services
         // базовый метод
         public void Write(string level, string source, string message, object? payload = null)
         {
-            var entry = new LogEntry
+            var now = DateTime.Now;
+
+            // --- безопасная сериализация payload ---
+            // --- безопасная сериализация payload ---
+            string? dataJson = null;
+            if (payload != null)
             {
-                Timestamp = DateTime.Now,
+                if (payload is Exception ex)
+                {
+                    var safe = new
+                    {
+                        Type = ex.GetType().FullName,
+                        ex.Message,
+                        ex.Source,
+                        ex.HResult,
+                        ex.StackTrace,
+                        Inner = ex.InnerException?.Message
+                    };
+                    dataJson = JsonSerializer.Serialize(safe);
+                }
+                else
+                {
+                    try
+                    {
+                        dataJson = JsonSerializer.Serialize(payload);
+                    }
+                    catch
+                    {
+                        dataJson = JsonSerializer.Serialize(payload.ToString());
+                    }
+                }
+            }
+
+            // итоговая запись для файла (анонимка — как и раньше)
+            var entry = new
+            {
+                Time = now.ToString("o"),
                 Level = level,
                 Source = source,
                 Message = message,
-                DataJson = payload == null ? null : JsonSerializer.Serialize(payload)
+                Data = dataJson
             };
 
-            // в файл (потокобезопасно)
+            // --- в файл (потокобезопасно) ---
             lock (_fileLock)
             {
                 using var sw = new StreamWriter(LogPath, append: true);
                 sw.WriteLine(JsonSerializer.Serialize(entry));
             }
 
-            // в UI (с безопасностью к другим потокам)
+            // --- в UI (через твою модель LogEntry) ---
+            // --- в UI (через твою модель LogEntry) ---
+            void PostToUi()
+            {
+                var uiEntry = new LogEntry
+                {
+                    // подставь точные имена свойств так, как они у тебя названы в LogEntry
+                    Timestamp = now,            // если у тебя string — сделай: now.ToString("o")
+                    Level = level,
+                    Source = source,
+                    Message = message,
+                    DataJson = dataJson        // если свойство называется иначе (Payload/Json/Extra) — поменяй имя
+                };
+
+                AddToUi(uiEntry);
+            }
+
             if (System.Windows.Application.Current?.Dispatcher != null &&
                 !System.Windows.Application.Current.Dispatcher.CheckAccess())
             {
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                {
-                    AddToUi(entry);
-                });
+                System.Windows.Application.Current.Dispatcher.Invoke(PostToUi);
             }
             else
             {
-                AddToUi(entry);
+                PostToUi();
             }
+
+
         }
+
 
         private void AddToUi(LogEntry entry)
         {

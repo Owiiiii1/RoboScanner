@@ -16,7 +16,7 @@ namespace RoboScanner.Views
         private readonly GroupsService _groups = GroupsService.Instance;
         private readonly LogService _log = LogService.Instance;
 
-        private ModbusInputWatcher? _inputWatcher;
+        
         private bool _isScanInProgress;
 
         private string L(string key, string fallback) =>
@@ -27,96 +27,93 @@ namespace RoboScanner.Views
             InitializeComponent();
             TxtResultLine.Text = "—";
             UpdateButtons();
-        }
 
-        #region Auto start by LOGO! (group 16 / M16=Coil 8272)
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            try
+            // Глобальный триггер запуска скана (живёт независимо от экрана)
+            StartSignalWatcher.Instance.Triggered += async (_, __) =>
             {
-                // Берём настройки "Старт робот" (группа 16)
-                var g = RobotGroups.Get(17);
-                if (!string.IsNullOrWhiteSpace(g.Host) && g.PrimaryCoilAddress.HasValue)
-                {
-                    _inputWatcher = new ModbusInputWatcher(
-                        host: g.Host,
-                        port: g.Port,
-                        unitId: g.UnitId,
-                        coilAddressOneBased: g.PrimaryCoilAddress.Value, // 8273 (M17)
-                        pollMs: 80
-                    );
+                if (!_app.IsRunning || _isScanInProgress) return;
+                if (_isScanInProgress) return;
 
-                    _inputWatcher.RisingEdge += async (_, __) =>
+                _isScanInProgress = true;
+                try
+                {
+                    // Запускаем на UI-диспетчере и ЖДЁМ реального Task из StartScanAsync
+                    var op = Dispatcher.InvokeAsync(async () =>
                     {
-                        if (!_app.IsRunning) return;          // автозапуск только в режиме RUN
-                        if (_isScanInProgress) return;        // защита от повторов
-                        _isScanInProgress = true;
-                        try { await Dispatcher.InvokeAsync(StartScanAsync); }
-                        catch { /* лог при желании */ }
-                        finally { _isScanInProgress = false; }
-                    };
-
-                    _inputWatcher.Start();
-                    _log.Info("InputWatcher", "Started (Group16)", new { g.Host, g.Port, g.UnitId, g.PrimaryCoilAddress });
+                        try
+                        {
+                            await StartScanAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.Error("Scan", "Unhandled error in StartScanAsync", ex);
+                            throw;
+                        }
+                        return 0;
+                    });
+                    await op.Task;   // <-- вот это ключевое: дождались выполнения
                 }
-                else
+                finally
                 {
-                    _log.Warn("InputWatcher", "Group 16 not configured (Host/Coil)");
+                    _isScanInProgress = false;
                 }
-            }
-            catch (Exception ex)
-            {
-                _log.Error("InputWatcher", "Failed to start", ex);
-            }
+            };
+
+
         }
 
-        private async void UserControl_Unloaded(object sender, RoutedEventArgs e)
-        {
-            if (_inputWatcher != null)
-            {
-                await _inputWatcher.StopAsync();
-                _inputWatcher = null;
-                _log.Info("InputWatcher", "Stopped");
-            }
-        }
-        #endregion
 
         private void UpdateButtons()
         {
             if (_app.IsRunning)
             {
-                BtnStart.Background = new SolidColorBrush(Color.FromRgb(34, 197, 94)); // #22C55E
+                BtnStart.Content = L("Scan.Btn.Stop", "Stop");  // ← текст
+                BtnStart.Background = new SolidColorBrush(Color.FromRgb(34, 197, 94));
                 BtnStart.Foreground = Brushes.White;
-                BtnStop.IsEnabled = true;
+               
                 BtnScan.IsEnabled = true;
             }
             else
             {
+                BtnStart.Content = L("Scan.Btn.Start", "Start"); // ← текст
                 BtnStart.ClearValue(Button.BackgroundProperty);
                 BtnStart.ClearValue(Button.ForegroundProperty);
-                BtnStop.IsEnabled = false;
+               
                 BtnScan.IsEnabled = false;
             }
         }
 
+
         private string Axis(string key, string fallback) =>
             (TryFindResource(key) as string) ?? fallback;
 
-        private void BtnStart_Click(object sender, RoutedEventArgs e)
+        private async void BtnStart_Click(object sender, RoutedEventArgs e)
         {
-            _app.IsRunning = true;
-            _app.OpState = OperationState.Wait;
-            UpdateButtons();
-            _log.Info("Application", "Start button clicked");
+            if (!_app.IsRunning)
+            {
+                // START
+                _app.IsRunning = true;
+                _app.OpState = OperationState.Wait;
+                UpdateButtons();
+
+                try { StartSignalWatcher.Instance.Start(); }
+                catch (Exception ex) { _log.Error("InputWatcher", "Failed to start", ex); }
+
+                _log.Info("Application", "Start button clicked");
+            }
+            else
+            {
+                // STOP
+                _app.IsRunning = false;
+                _app.OpState = OperationState.Wait;
+                UpdateButtons();
+
+                await StartSignalWatcher.Instance.StopAsync();
+
+                _log.Info("Application", "Stop button clicked");
+            }
         }
 
-        private void BtnStop_Click(object sender, RoutedEventArgs e)
-        {
-            _app.IsRunning = false;
-            _app.OpState = OperationState.Wait;
-            UpdateButtons();
-            _log.Info("Application", "Stop button clicked");
-        }
 
         private async void BtnScanOnce_Click(object sender, RoutedEventArgs e)
         {
@@ -134,99 +131,149 @@ namespace RoboScanner.Views
                 return;
             }
 
+            // статус: сканирование
             _app.OpState = OperationState.Scanning;
+            UpdateButtons();
 
-            // ==== Simulated scan based on ACTIVE groups ====
-            var sim = SimulateFromActiveGroups();
-            if (sim == null)
+            try
             {
-                MessageBox.Show(
-                    L("Scan.Alert.NoActiveGroups.Body",
-                      "There are no active groups in the settings. Specify the dimensions for at least one group."),
-                    L("Scan.Alert.NoActiveGroups.Title", "Warning"),
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                // ==== Выбираем активную группу для скана ====
+                var sim = SimulateFromActiveGroups();
+                if (sim == null)
+                {
+                    _log.Warn("Scan", "No active groups to simulate scan");
+                    MessageBox.Show(
+                        L("Scan.Alert.NoActiveGroups.Body",
+                          "There are no active groups in the settings. Specify the dimensions for at least one group."),
+                        L("Scan.Alert.NoActiveGroups.Title", "Warning"),
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
 
-                _log.Warn("Scan", "No active groups to simulate scan");
-                _app.OpState = OperationState.Wait;
-                return;
-            }
+                    _app.OpState = OperationState.Wait;
+                    return;
+                }
 
-            var (groupIndex, groupName, x, y, z) = sim.Value;
+                var (groupIndex, groupName, x, y, z) = sim.Value;
 
-            // 1) Определяем привязанную робо-группу для этой скан-группы
-            var rule = RulesService.Instance.Rules.FirstOrDefault(r => r.Index == groupIndex);
-            var robotIdx = rule?.RobotGroup;
+                // ==== Определяем привязанную робо-группу ====
+                var rule = RulesService.Instance.Rules.FirstOrDefault(r => r.Index == groupIndex);
+                var robotIdx = rule?.RobotGroup;
 
-            // 2) Если есть привязка — берём настройки из RobotGroups (пока только лог)
-            if (robotIdx.HasValue)
-            {
-                var rg = RoboScanner.Models.RobotGroups.Get(robotIdx.Value);
-
-                _log.Info("Relay",
-                    "Would trigger relay for scan result",
-                    new
+                // ==== Отработка выхода(ов) по Modbus ====
+                if (robotIdx.HasValue)
+                {
+                    // 1) Привязанная к скан-группе робо-группа
+                    var rg = RoboScanner.Models.RobotGroups.Get(robotIdx.Value);
+                    if (!string.IsNullOrWhiteSpace(rg.Host) && rg.PrimaryCoilAddress.HasValue)
                     {
-                        ScanGroup = groupIndex,
-                        RobotGroupIndex = robotIdx.Value,
-                        rg.Name,
-                        rg.Host,
-                        rg.Port,
-                        rg.UnitId,
-                        Coil = rg.PrimaryCoilAddress,
-                        PulseSeconds = rg.PulseSeconds
-                    });
+                        try
+                        {
+                            await ModbusOutputService.PulseAsync(
+                                host: rg.Host,
+                                port: rg.Port,
+                                unitId: rg.UnitId,
+                                coilAddressOneBased: rg.PrimaryCoilAddress.Value,
+                                pulseSeconds: rg.PulseSeconds
+                            );
+                            _log.Info("Relay", "Triggered mapped robot group",
+                                new { RobotGroupIndex = robotIdx.Value, rg.Host, rg.UnitId, rg.PrimaryCoilAddress, rg.PulseSeconds });
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.Error("Relay", "Failed to trigger mapped robot group", ex);
+                        }
+                    }
+                    else
+                    {
+                        _log.Warn("Relay", $"Mapped robot group {robotIdx.Value} not configured (Host/Coil)");
+                    }
 
-                // TODO: здесь позже вызов Modbus-выхода
-                // await _relay.TriggerAsync(rg, CancellationToken.None);
+                    // 2) Дополнительно «Старт робот» (группа 16), если это не та же группа
+                    const int StartRobotIndex = 16;
+                    if (robotIdx.Value != StartRobotIndex)
+                    {
+                        var start = RoboScanner.Models.RobotGroups.Get(StartRobotIndex);
+                        if (!string.IsNullOrWhiteSpace(start.Host) && start.PrimaryCoilAddress.HasValue)
+                        {
+                            try
+                            {
+                                await ModbusOutputService.PulseAsync(
+                                    host: start.Host,
+                                    port: start.Port,
+                                    unitId: start.UnitId,
+                                    coilAddressOneBased: start.PrimaryCoilAddress.Value,
+                                    pulseSeconds: start.PulseSeconds
+                                );
+                                _log.Info("Relay", "Triggered Start Robot (group 16)",
+                                    new { start.Host, start.UnitId, start.PrimaryCoilAddress, start.PulseSeconds });
+                            }
+                            catch (Exception ex)
+                            {
+                                _log.Error("Relay", "Failed to trigger Start Robot (group 16)", ex);
+                            }
+                        }
+                        else
+                        {
+                            _log.Warn("Relay", "Start Robot (group 16) not configured (Host/Coil)");
+                        }
+                    }
+                }
+                else
+                {
+                    _log.Warn("Relay", $"No robot-group mapping for scan-group {groupIndex}");
+                }
+
+                // ==== Обновление UI и состояния ====
+                var now = DateTime.Now;
+
+                string xLbl = Axis("Scan.Axis.X", "X: ");
+                string yLbl = Axis("Scan.Axis.Y", "Y: ");
+                string zLbl = Axis("Scan.Axis.Z", "Z: ");
+                TxtResultLine.Text = $"{groupName} — {xLbl}{x:F2}  {yLbl}{y:F2}  {zLbl}{z:F2}";
+
+                ShowPlaceholders();
+
+                _app.SetLastScan(groupIndex, x, y, z, now);
+
+                _log.Info("Scan", "Scan completed",
+                    new { Group = groupIndex, GroupName = groupName, X = x, Y = y, Z = z, At = now.ToString("o") });
+
+                // учёт и авто-пауза при переполнении
+                var add = _groups.AddItemToGroup(groupIndex, x, y, z, now);
+                ScanHistoryService.Instance.Add(new ScanRecord(now, groupIndex, groupName, x, y, z));
+
+                if (add.justReachedLimit)
+                {
+                    _log.Warn("Scan",
+                        $"Group limit reached; paused. Name={add.stat.Name}, Index={add.stat.Index}, Count={add.stat.Count}, Limit={add.stat.Limit}",
+                        new { Group = add.stat.Index, Count = add.stat.Count, Limit = add.stat.Limit });
+
+                    _app.IsRunning = false;
+                    _app.OpState = OperationState.Wait;
+                    UpdateButtons();
+
+                    MessageBox.Show(
+                        string.Format(L("Scan.Alert.GroupOverflow.Body",
+                                        "The «{0}» group is full ({1}). Scanning has been paused."),
+                                      add.stat.Name, add.stat.Count),
+                        L("Scan.Alert.GroupOverflow.Title", "Attention"),
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                    return;
+                }
+
+                _app.OpState = OperationState.Done;
             }
-            else
+            catch (Exception ex)
             {
-                _log.Warn("Relay", $"No robot-group mapping for scan-group {groupIndex}");
-            }
-
-            var now = DateTime.Now;
-
-            // Result line
-            string xLbl = Axis("Scan.Axis.X", "X: ");
-            string yLbl = Axis("Scan.Axis.Y", "Y: ");
-            string zLbl = Axis("Scan.Axis.Z", "Z: ");
-            TxtResultLine.Text = $"{groupName} — {xLbl}{x:F2}  {yLbl}{y:F2}  {zLbl}{z:F2}";
-
-            // Placeholder images (replace with real frames)
-            ShowPlaceholders();
-
-            // Update global state
-            _app.SetLastScan(groupIndex, x, y, z, now);
-            _app.OpState = OperationState.Done;
-
-            // Log
-            _log.Info("Scan", "Scan completed",
-                new { Group = groupIndex, GroupName = groupName, X = x, Y = y, Z = z, At = now.ToString("o") });
-
-            // Group accounting + auto-pause on limit
-            var add = _groups.AddItemToGroup(groupIndex, x, y, z, now);
-            ScanHistoryService.Instance.Add(new ScanRecord(now, groupIndex, groupName, x, y, z));
-
-            if (add.justReachedLimit)
-            {
-                _log.Warn("Scan",
-                    $"Group limit reached; paused. Name={add.stat.Name}, Index={add.stat.Index}, Count={add.stat.Count}, Limit={add.stat.Limit}",
-                    new { Group = add.stat.Index, Count = add.stat.Count, Limit = add.stat.Limit });
-
-                _app.IsRunning = false;
+                _log.Error("Scan", "Fatal error during scan", ex);
                 _app.OpState = OperationState.Wait;
-                UpdateButtons();
-
-                MessageBox.Show(
-                    string.Format(L("Scan.Alert.GroupOverflow.Body",
-                                    "The «{0}» group is full ({1}). Scanning has been paused."),
-                                  add.stat.Name, add.stat.Count),
-                    L("Scan.Alert.GroupOverflow.Title", "Attention"),
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
             }
-
-            await Task.CompletedTask;
+            finally
+            {
+                UpdateButtons(); // чтобы кнопки/статус всегда вернулись из «идёт сканирование»
+            }
         }
+
 
         /// <summary>
         /// Picks a random ACTIVE group and generates X/Y/Z:
