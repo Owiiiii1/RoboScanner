@@ -43,6 +43,7 @@ namespace RoboScanner.Services
 
         // ======== открыть/сконфигурировать, с прогревом ========
 
+        // 1) Открытие камеры по moniker + базовая настройка и короткий прогрев
         private VideoCapture EnsureOpen(string moniker, int width, int height, int fps)
         {
             lock (_sync)
@@ -51,69 +52,86 @@ namespace RoboScanner.Services
                     return entry.cap;
 
                 var idx = ResolveIndex(moniker);
-                if (idx < 0) throw new Exception($"Камера не найдена: {moniker}");
+                if (idx < 0)
+                    throw new Exception($"Камера не найдена: {moniker}");
 
-                // пробуем разные backend'ы
+                // backend: DSHOW -> MSMF -> ANY
                 VideoCapture cap = new(idx, VideoCaptureAPIs.DSHOW);
-                if (!cap.IsOpened())
-                {
-                    cap.Dispose();
-                    cap = new VideoCapture(idx, VideoCaptureAPIs.MSMF);
-                }
-                if (!cap.IsOpened())
-                {
-                    cap.Dispose();
-                    cap = new VideoCapture(idx, VideoCaptureAPIs.ANY);
-                }
+                if (!cap.IsOpened()) { cap.Dispose(); cap = new VideoCapture(idx, VideoCaptureAPIs.MSMF); }
+                if (!cap.IsOpened()) { cap.Dispose(); cap = new VideoCapture(idx, VideoCaptureAPIs.ANY); }
                 if (!cap.IsOpened())
                     throw new Exception($"Не удалось открыть камеру (index={idx})");
 
-                cap.Set(VideoCaptureProperties.FrameWidth, width);
-                cap.Set(VideoCaptureProperties.FrameHeight, height);
-                cap.Set(VideoCaptureProperties.Fps, fps);
-                TrySet(cap, VideoCaptureProperties.BufferSize, 1);
+                // Базовые параметры + MJPG (часто обязателен на Windows)
+                TrySet(cap, VideoCaptureProperties.FrameWidth, width);
+                TrySet(cap, VideoCaptureProperties.FrameHeight, height);
+                TrySet(cap, VideoCaptureProperties.Fps, fps);
+                TrySet(cap, VideoCaptureProperties.FourCC, VideoWriter.FourCC('M', 'J', 'P', 'G'));
                 TrySet(cap, VideoCaptureProperties.ConvertRgb, 1);
+                TrySet(cap, VideoCaptureProperties.BufferSize, 1);
 
-                // небольшой прогрев
-                using var warm = new Mat();
-                for (int i = 0; i < 6; i++) { cap.Read(warm); Thread.Sleep(10); }
+                // Короткий прогрев только при открытии
+                using (var warm = new Mat())
+                {
+                    for (int i = 0; i < 4; i++) { cap.Read(warm); System.Threading.Thread.Sleep(5); }
+                }
+
+                // Если драйвер вернул ерунду (0x0) — деградация до 1280x720 + MJPG
+                var aw = cap.Get(VideoCaptureProperties.FrameWidth);
+                var ah = cap.Get(VideoCaptureProperties.FrameHeight);
+                if (aw < 64 || ah < 64)
+                {
+                    TrySet(cap, VideoCaptureProperties.FrameWidth, 1280);
+                    TrySet(cap, VideoCaptureProperties.FrameHeight, 720);
+                    TrySet(cap, VideoCaptureProperties.FourCC, VideoWriter.FourCC('M', 'J', 'P', 'G'));
+
+                    using var warm2 = new Mat();
+                    for (int i = 0; i < 4; i++) { cap.Read(warm2); System.Threading.Thread.Sleep(5); }
+                }
 
                 _open[moniker] = (cap, idx);
                 return cap;
             }
         }
 
+
+
         private static void TrySet(VideoCapture cap, VideoCaptureProperties p, double v)
         { try { cap.Set(p, v); } catch { /* ignore */ } }
 
         // ======== получить свежий кадр (промываем очередь ~50 мс) ========
 
-        private static Mat GrabFresh(VideoCapture cap)
+        // 2) Быстрый «свежий» кадр: короткий дренаж (≈120 мс) + страховочный read
+        private Mat GrabFresh(VideoCapture cap)
         {
             using var tmp = new Mat();
             Mat? last = null;
 
-            var t0 = Environment.TickCount;
-            while (Environment.TickCount - t0 < 50)
+            const int windowMs = 120;                     // было долго — теперь коротко
+            int t0 = Environment.TickCount;
+            while (Environment.TickCount - t0 < windowMs)
             {
-                if (!cap.Read(tmp) || tmp.Empty()) { Thread.Sleep(2); continue; }
-                last?.Dispose();
-                last = tmp.Clone();
-                Thread.Sleep(1);
-            }
-            if (last is null || last.Empty())
-            {
-                for (int i = 0; i < 3; i++)
+                if (!cap.Read(tmp) || tmp.Empty())
                 {
-                    if (cap.Read(tmp) && !tmp.Empty()) { last = tmp.Clone(); break; }
-                    Thread.Sleep(5);
+                    System.Threading.Thread.Sleep(2);
+                    continue;
                 }
+                last?.Dispose();
+                last = tmp.Clone();                       // берём самый свежий в окне
             }
+
+            // Страховка: одна попытка чтения, если окно ничего не дало
             if (last is null || last.Empty())
-                throw new Exception("Не удалось получить кадр с камеры");
+            {
+                if (!cap.Read(tmp) || tmp.Empty())
+                    throw new Exception("Не удалось получить кадр с камеры");
+                last = tmp.Clone();
+            }
 
             return last;
         }
+
+
 
         // ======== публичные методы ========
 

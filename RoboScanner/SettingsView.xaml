@@ -52,16 +52,17 @@
 
             <TextBlock Text="{DynamicResource Settings.Camera1}" VerticalAlignment="Center"/>
             <ComboBox x:Name="CbCamera1" Grid.Column="1" MinWidth="280"
-              DisplayMemberPath="Name" SelectedValuePath="Moniker" Grid.ColumnSpan="3" Margin="16,0,0,8" Grid.RowSpan="2"/>
+              DisplayMemberPath="Name" SelectedValuePath="Moniker" Grid.ColumnSpan="3" Margin="400,0,0,8" Grid.RowSpan="2"/>
 
             <TextBlock Grid.Row="2" Text="{DynamicResource Settings.Camera2}" VerticalAlignment="Center"/>
             <ComboBox x:Name="CbCamera2" Grid.Row="2" Grid.Column="1" MinWidth="280"
-              DisplayMemberPath="Name" SelectedValuePath="Moniker" Grid.ColumnSpan="3" Margin="16,0,0,0"/>
-
-            <!-- опционально: кнопка обновить -->
-            <Button Grid.Column="3" Content="{DynamicResource Settings.Refresh}" Click="RefreshCameras_Click"
-            VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="261,0,0,0" />
+              DisplayMemberPath="Name" SelectedValuePath="Moniker" Grid.ColumnSpan="3" Margin="400,0,0,0"/>
         </Grid>
+        
+        <!-- опционально: кнопка обновить -->
+            <Button Content="{DynamicResource Settings.Refresh}" Click="RefreshCameras_Click"
+            Width="120" HorizontalAlignment="Right"/>
+        
 
 
 
