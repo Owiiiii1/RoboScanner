@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using DirectShowLib;
 using OpenCvSharp;
 
 namespace RoboScanner.Services
 {
     /// <summary>
-    /// Ленивая обёртка над OpenCV VideoCapture с прогревом и сбросом буфера.
-    /// Решает проблему: первый кадр чёрный, далее приходит предыдущий кадр.
+    /// UVC-камеры по стабильному идентификатору (DevicePath/Moniker).
+    /// Держит кэш открытых VideoCapture, снимает «свежий» кадр (без лагов очереди).
     /// </summary>
     public sealed class CameraService : IDisposable
     {
@@ -16,128 +18,118 @@ namespace RoboScanner.Services
 
         private readonly object _sync = new();
 
-        private VideoCapture? _cap;
-        private int _deviceIndex = 0;
-        private int _width = 1920, _height = 1080, _fps = 30;
+        // moniker(DevicePath) -> (VideoCapture, index)
+        private readonly Dictionary<string, (VideoCapture cap, int index)> _open = new();
 
         private CameraService() { }
 
-        public void Configure(int deviceIndex = 0, int width = 1920, int height = 1080, int fps = 30)
-        {
-            lock (_sync)
-            {
-                _deviceIndex = deviceIndex;
-                _width = width; _height = height; _fps = fps;
+        // ======== перечисление устройств и поиск индекса по монникеру ========
 
-                _cap?.Release();
-                _cap?.Dispose();
-                _cap = null; // переоткроется на следующем захвате
+        private static DsDevice[] ListDsCams()
+            => DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice) ?? Array.Empty<DsDevice>();
+
+        private static int ResolveIndex(string moniker)
+        {
+            var list = ListDsCams();
+            for (int i = 0; i < list.Length; i++)
+            {
+                var path = list[i].DevicePath ?? list[i].Name;
+                if (!string.IsNullOrWhiteSpace(path) &&
+                    string.Equals(path, moniker, StringComparison.OrdinalIgnoreCase))
+                    return i;
             }
+            return -1;
         }
 
-        private static void TrySet(VideoCapture cap, VideoCaptureProperties prop, double value)
-        {
-            try { cap.Set(prop, value); } catch { /* ignore */ }
-        }
+        // ======== открыть/сконфигурировать, с прогревом ========
 
-        /// <summary>Открыть камеру (DSHOW→MSMF→ANY), задать параметры, уменьшить буфер, прогреть.</summary>
-        private void EnsureOpen()
+        private VideoCapture EnsureOpen(string moniker, int width, int height, int fps)
         {
-            if (_cap != null && _cap.IsOpened()) return;
-
             lock (_sync)
             {
-                _cap?.Release();
-                _cap?.Dispose();
+                if (_open.TryGetValue(moniker, out var entry) && entry.cap.IsOpened())
+                    return entry.cap;
 
-                VideoCapture? cap = null;
-                foreach (var api in new[] { VideoCaptureAPIs.DSHOW, VideoCaptureAPIs.MSMF, VideoCaptureAPIs.ANY })
+                var idx = ResolveIndex(moniker);
+                if (idx < 0) throw new Exception($"Камера не найдена: {moniker}");
+
+                // пробуем разные backend'ы
+                VideoCapture cap = new(idx, VideoCaptureAPIs.DSHOW);
+                if (!cap.IsOpened())
                 {
-                    var c = new VideoCapture(_deviceIndex, api);
-                    if (c.IsOpened()) { cap = c; break; }
-                    c.Dispose();
+                    cap.Dispose();
+                    cap = new VideoCapture(idx, VideoCaptureAPIs.MSMF);
                 }
-                if (cap is null)
-                    throw new Exception($"Unable to open camera (deviceIndex={_deviceIndex})");
+                if (!cap.IsOpened())
+                {
+                    cap.Dispose();
+                    cap = new VideoCapture(idx, VideoCaptureAPIs.ANY);
+                }
+                if (!cap.IsOpened())
+                    throw new Exception($"Не удалось открыть камеру (index={idx})");
 
-                // Параметры
-                cap.Set(VideoCaptureProperties.FrameWidth, _width);
-                cap.Set(VideoCaptureProperties.FrameHeight, _height);
-                cap.Set(VideoCaptureProperties.Fps, _fps);
-
-                // Свести задержку к минимуму
-                TrySet(cap, VideoCaptureProperties.BufferSize, 1);   // уменьшить глубину буфера (если поддерживается)
+                cap.Set(VideoCaptureProperties.FrameWidth, width);
+                cap.Set(VideoCaptureProperties.FrameHeight, height);
+                cap.Set(VideoCaptureProperties.Fps, fps);
+                TrySet(cap, VideoCaptureProperties.BufferSize, 1);
                 TrySet(cap, VideoCaptureProperties.ConvertRgb, 1);
 
-                // Прогрев: выбрасываем несколько первых кадров, даём автоэкспозиции стабилизироваться
+                // небольшой прогрев
                 using var warm = new Mat();
-                for (int i = 0; i < 8; i++)
-                {
-                    cap.Read(warm);
-                    Thread.Sleep(10);
-                }
+                for (int i = 0; i < 6; i++) { cap.Read(warm); Thread.Sleep(10); }
 
-                _cap = cap;
+                _open[moniker] = (cap, idx);
+                return cap;
             }
         }
 
-        /// <summary>
-        /// Считать один актуальный кадр (BGR). Перед возвратом “промываем” очередь,
-        /// читаем несколько раз и возвращаем последний (клон).
-        /// </summary>
-        public Mat GrabFrame()
-        {
-            EnsureOpen();
+        private static void TrySet(VideoCapture cap, VideoCaptureProperties p, double v)
+        { try { cap.Set(p, v); } catch { /* ignore */ } }
 
-            // Сбросить возможный хвост очереди (на некоторых драйверах это критично)
+        // ======== получить свежий кадр (промываем очередь ~50 мс) ========
+
+        private static Mat GrabFresh(VideoCapture cap)
+        {
             using var tmp = new Mat();
             Mat? last = null;
 
-            // Делаем короткий дренаж ~40–60 мс: берём всё, что есть “сейчас”
             var t0 = Environment.TickCount;
             while (Environment.TickCount - t0 < 50)
             {
-                if (!_cap!.Read(tmp) || tmp.Empty())
-                {
-                    Thread.Sleep(5);
-                    continue;
-                }
+                if (!cap.Read(tmp) || tmp.Empty()) { Thread.Sleep(2); continue; }
                 last?.Dispose();
-                last = tmp.Clone(); // клон — чтобы не зависеть от внутреннего буфера
-                // небольшой yield, чтобы драйвер подкинул следующий кадр, если есть
+                last = tmp.Clone();
                 Thread.Sleep(1);
             }
-
-            // страховка: если по какой-то причине last пуст — читаем ещё раз
             if (last is null || last.Empty())
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    if (_cap!.Read(tmp) && !tmp.Empty())
-                    {
-                        last?.Dispose();
-                        last = tmp.Clone();
-                        break;
-                    }
-                    Thread.Sleep(10);
+                    if (cap.Read(tmp) && !tmp.Empty()) { last = tmp.Clone(); break; }
+                    Thread.Sleep(5);
                 }
             }
-
             if (last is null || last.Empty())
-                throw new Exception("Unable to get a frame from the camera");
+                throw new Exception("Не удалось получить кадр с камеры");
 
-            return last; // не Dispose — отдаём вызвавшему
+            return last;
         }
 
-        public Task<Mat> GrabFrameAsync() => Task.Run(() => GrabFrame());
+        // ======== публичные методы ========
+
+        /// <summary>Снять кадр с камеры по её стабильному ID (DevicePath/Moniker).</summary>
+        public Mat CaptureByMoniker(string moniker, int width = 1920, int height = 1080, int fps = 30)
+            => GrabFresh(EnsureOpen(moniker, width, height, fps));
+
+        public Task<Mat> CaptureByMonikerAsync(string moniker, int width = 1920, int height = 1080, int fps = 30)
+            => Task.Run(() => CaptureByMoniker(moniker, width, height, fps));
 
         public void Dispose()
         {
             lock (_sync)
             {
-                _cap?.Release();
-                _cap?.Dispose();
-                _cap = null;
+                foreach (var kv in _open.Values) { kv.cap.Release(); kv.cap.Dispose(); }
+                _open.Clear();
             }
         }
     }

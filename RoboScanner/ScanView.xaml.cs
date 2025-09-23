@@ -154,44 +154,41 @@ namespace RoboScanner.Views
             _app.OpState = OperationState.Scanning;
             UpdateButtons();
 
+            var cam1Id = Properties.Settings.Default.Camera1Id;
+            var cam2Id = Properties.Settings.Default.Camera2Id;
+
             try
             {
-                // === Захват одного кадра и показ в левом окне ===
-                var mat = await CaptureManager.Instance.CaptureOnceAsync(); // BGR Mat
-
-                //// RAW в левое окно
-                //var bmp = mat.ToWriteableBitmap();
-                //ImgCam1.Source = bmp;
-                //LblNoImg1.Visibility = Visibility.Collapsed;
-
-                // Бинаризация и вывод в первое окно
-                var bin = BinarizationService.Instance.Binarize(mat, new BinarizationService.Options
-                {
-                    // настройки по вкусу:
-                    UseAdaptive = false,      // true если фон неравномерен
-                    Invert = false,           // true если нужно инвертировать ч/б
-                    BlurKernel = 3,           // 0 чтобы отключить
-                    ManualThreshold = null    // например 128, если хочешь фикс-порог
-                });
-                //var bmpBin = bin.ToWriteableBitmap();
-                //ImgCam2.Source = bmpBin;
-                //LblNoImg2.Visibility = Visibility.Collapsed;
-
-                // 3) Для стабильного показа переведём в BGRA (WPF любит 32 bpp)
-                using var binColor = new Mat();
-                OpenCvSharp.Cv2.CvtColor(bin, binColor, ColorConversionCodes.GRAY2BGRA);
-
-                // 4) ПОКАЗЫВАЕМ ТОЛЬКО В ImgCam1
-                ImgCam1.Source = binColor.ToWriteableBitmap();
+                // === КАМЕРА 1 ===
+                var mat1 = await CameraService.Instance.CaptureByMonikerAsync(cam1Id);
+                var bin1 = BinarizationService.Instance.Binarize(mat1);            // 0/255
+                using var bin1Color = new Mat();
+                OpenCvSharp.Cv2.CvtColor(bin1, bin1Color, ColorConversionCodes.GRAY2BGRA);
+                ImgCam1.Source = bin1Color.ToWriteableBitmap();
                 LblNoImg1.Visibility = Visibility.Collapsed;
-
-                // аккуратно освобождаем
-                bin.Dispose();
-                mat.Dispose();
+                bin1.Dispose();
+                mat1.Dispose();
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                _log.Error("Camera", "Capture failed", ex);
+                _log.Error("Camera", $"Capture Cam1 failed ({cam1Id})", ex);
+            }
+
+            try
+            {
+                // === КАМЕРА 2 ===
+                var mat2 = await CameraService.Instance.CaptureByMonikerAsync(cam2Id);
+                var bin2 = BinarizationService.Instance.Binarize(mat2);
+                using var bin2Color = new Mat();
+                OpenCvSharp.Cv2.CvtColor(bin2, bin2Color, ColorConversionCodes.GRAY2BGRA);
+                ImgCam2.Source = bin2Color.ToWriteableBitmap();
+                LblNoImg2.Visibility = Visibility.Collapsed;
+                bin2.Dispose();
+                mat2.Dispose();
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Camera", $"Capture Cam2 failed ({cam2Id})", ex);
             }
 
 
