@@ -50,18 +50,63 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Text="{DynamicResource Settings.Camera1}" VerticalAlignment="Center"/>
-            <ComboBox x:Name="CbCamera1" Grid.Column="1" MinWidth="280"
-              DisplayMemberPath="Name" SelectedValuePath="Moniker" Grid.ColumnSpan="3" Margin="16,0,0,8" Grid.RowSpan="2"/>
+            <TextBlock Grid.Row="0" Text="{DynamicResource Settings.Camera1}" VerticalAlignment="Center"/>
+            
+            <ComboBox x:Name="CbCamera1"
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Grid.ColumnSpan="2"
+                        MinWidth="280"
+                        Margin="400,0,0,8"
+                        DisplayMemberPath="Display"
+                        SelectedValuePath="Moniker">
+                <!--<ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}"/>
+                            <TextBlock Text=" (" Margin="6,0,0,0"/>
+                            <TextBlock Text="{Binding PortInfo, TargetNullValue=unknown}"/>
+                            <TextBlock Text=")"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate> -->
+                <ComboBox.ItemContainerStyle>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="ToolTip" Value="{Binding Moniker}"/>
+                    </Style>
+                </ComboBox.ItemContainerStyle>
+            </ComboBox>
 
-            <TextBlock Grid.Row="2" Text="{DynamicResource Settings.Camera2}" VerticalAlignment="Center"/>
-            <ComboBox x:Name="CbCamera2" Grid.Row="2" Grid.Column="1" MinWidth="280"
-              DisplayMemberPath="Name" SelectedValuePath="Moniker" Grid.ColumnSpan="3" Margin="16,0,0,0"/>
-
-            <!-- опционально: кнопка обновить -->
-            <Button Grid.Column="3" Content="{DynamicResource Settings.Refresh}" Click="RefreshCameras_Click"
-            VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="261,0,0,0" />
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource Settings.Camera2}" VerticalAlignment="Center"/>
+            <ComboBox x:Name="CbCamera2"
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        Grid.ColumnSpan="2"
+                        MinWidth="280"
+                        Margin="400,0,0,8"
+                        DisplayMemberPath="Display"
+                        SelectedValuePath="Moniker">
+                <!--<ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}"/>
+                            <TextBlock Text=" (" Margin="6,0,0,0"/>
+                            <TextBlock Text="{Binding PortInfo, TargetNullValue=unknown}"/>
+                            <TextBlock Text=")"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>-->
+                <ComboBox.ItemContainerStyle>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="ToolTip" Value="{Binding Moniker}"/>
+                    </Style>
+                </ComboBox.ItemContainerStyle>
+            </ComboBox>
         </Grid>
+        <!-- опционально: кнопка обновить -->
+            <Button Content="{DynamicResource Settings.Refresh}" Click="RefreshCameras_Click"
+            HorizontalAlignment="Right" />
+        
 
 
 
