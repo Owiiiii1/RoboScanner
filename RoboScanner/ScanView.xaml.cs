@@ -9,6 +9,8 @@ using RoboScanner.Models;
 using RoboScanner.Services;
 using OpenCvSharp;
 using OpenCvSharp.WpfExtensions; // для ToWriteableBitmap()
+using AppSettings = RoboScanner.Properties.Settings;
+
 
 namespace RoboScanner.Views
 {
@@ -154,47 +156,69 @@ namespace RoboScanner.Views
             _app.OpState = OperationState.Scanning;
             UpdateButtons();
 
+            // ====== 1) ДВЕ КАМЕРЫ: захват и показ ======
             try
             {
-                // === Захват одного кадра и показ в левом окне ===
-                var mat = await CaptureManager.Instance.CaptureOnceAsync(); // BGR Mat
+                // Выбираем камеры по сохранённым Moniker
+                var all = CameraDiscoveryService.Instance.ListVideoDevices();
+                var saved1 = AppSettings.Default.Camera1Id;
+                var saved2 = AppSettings.Default.Camera2Id;
 
-                //// RAW в левое окно
-                //var bmp = mat.ToWriteableBitmap();
-                //ImgCam1.Source = bmp;
-                //LblNoImg1.Visibility = Visibility.Collapsed;
+                string? cam1 = CameraDiscoveryService.Instance.FindByMoniker(all, saved1)?.Moniker
+                               ?? all.ElementAtOrDefault(0)?.Moniker;
+                string? cam2 = CameraDiscoveryService.Instance.FindByMoniker(all, saved2)?.Moniker
+                               ?? all.ElementAtOrDefault(1)?.Moniker;
 
-                // Бинаризация и вывод в первое окно
-                var bin = BinarizationService.Instance.Binarize(mat, new BinarizationService.Options
+                var binOpt = new BinarizationService.Options
                 {
-                    // настройки по вкусу:
-                    UseAdaptive = false,      // true если фон неравномерен
-                    Invert = false,           // true если нужно инвертировать ч/б
-                    BlurKernel = 3,           // 0 чтобы отключить
-                    ManualThreshold = null    // например 128, если хочешь фикс-порог
-                });
-                //var bmpBin = bin.ToWriteableBitmap();
-                //ImgCam2.Source = bmpBin;
-                //LblNoImg2.Visibility = Visibility.Collapsed;
+                    UseAdaptive = false,   // включим, если свет неровный
+                    Invert = false,   // инвертировать при необходимости
+                    BlurKernel = 3,       // 0 чтобы отключить лёгкое размытие
+                    ManualThreshold = null     // null => Otsu; можно задать 0..255
+                };
 
-                // 3) Для стабильного показа переведём в BGRA (WPF любит 32 bpp)
-                using var binColor = new Mat();
-                OpenCvSharp.Cv2.CvtColor(bin, binColor, ColorConversionCodes.GRAY2BGRA);
+                // --- Камера 1 ---
+                if (cam1 != null)
+                {
+                    using var m1 = await Capture.CaptureOnceAsync(cam1);                 // BGR
+                    using var b1 = BinarizationService.Instance.Binarize(m1, binOpt);   // 1 канал, 8u
+                    using var c1 = new Mat();
+                    Cv2.CvtColor(b1, c1, ColorConversionCodes.GRAY2BGRA);                // WPF любит BGRA
+                    ImgCam1.Source = c1.ToWriteableBitmap();
+                    LblNoImg1.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    ImgCam1.Source = null;
+                    LblNoImg1.Visibility = Visibility.Visible;
+                    _log.Warn("Camera", "Camera1 is not selected or not found");
+                }
 
-                // 4) ПОКАЗЫВАЕМ ТОЛЬКО В ImgCam1
-                ImgCam1.Source = binColor.ToWriteableBitmap();
-                LblNoImg1.Visibility = Visibility.Collapsed;
-
-                // аккуратно освобождаем
-                bin.Dispose();
-                mat.Dispose();
+                // --- Камера 2 ---
+                if (cam2 != null)
+                {
+                    using var m2 = await Capture.CaptureOnceAsync(cam2);
+                    using var b2 = BinarizationService.Instance.Binarize(m2, binOpt);
+                    using var c2 = new Mat();
+                    Cv2.CvtColor(b2, c2, ColorConversionCodes.GRAY2BGRA);
+                    ImgCam2.Source = c2.ToWriteableBitmap();
+                    LblNoImg2.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    ImgCam2.Source = null;
+                    LblNoImg2.Visibility = Visibility.Visible;
+                    _log.Warn("Camera", "Camera2 is not selected or not found");
+                }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 _log.Error("Camera", "Capture failed", ex);
+                ImgCam1.Source = null; LblNoImg1.Visibility = Visibility.Visible;
+                ImgCam2.Source = null; LblNoImg2.Visibility = Visibility.Visible;
             }
 
-
+            // ====== 2) ТВОЯ ДАЛЬНЕЙШАЯ ЛОГИКА (без изменений) ======
             try
             {
                 // ==== Выбираем активную группу для скана ====
@@ -219,7 +243,6 @@ namespace RoboScanner.Views
                 var robotIdx = rule?.RobotGroup;
 
                 // ==== Отработка выхода(ов) по Modbus + блокировка повторного старта ====
-
                 int mappedPulseSec = 0;
                 int startPulseSec = 0;
 
@@ -258,7 +281,7 @@ namespace RoboScanner.Views
                         var start = RoboScanner.Models.RobotGroups.Get(StartRobotIndex);
                         startPulseSec =
                             (start.PulseSeconds.HasValue && start.PulseSeconds.Value > 0) ? start.PulseSeconds.Value :
-                            (mappedPulseSec > 0 ? mappedPulseSec : 1); // умолчание: как у основной либо 1 сек
+                            (mappedPulseSec > 0 ? mappedPulseSec : 1);
 
                         if (!string.IsNullOrWhiteSpace(start.Host) && start.PrimaryCoilAddress.HasValue)
                         {
@@ -288,9 +311,9 @@ namespace RoboScanner.Views
                     _log.Warn("Relay", $"No robot-group mapping for scan-group {groupIndex}");
                 }
 
-                // НОВОЕ: блокируем повторный старт на время активных реле (берём максимум)
+                // Блокируем повторный старт на время активных реле (берём максимум)
                 int blockSec = Math.Max(mappedPulseSec, startPulseSec);
-                if (blockSec <= 0) blockSec = 1; // перестраховка, хотя бы 1 сек
+                if (blockSec <= 0) blockSec = 1;
                 RelayGate.BlockFor(TimeSpan.FromSeconds(blockSec));
 
                 // ==== Обновление UI и состояния ====
@@ -301,6 +324,7 @@ namespace RoboScanner.Views
                 string zLbl = Axis("Scan.Axis.Z", "Z: ");
                 TxtResultLine.Text = $"{groupName} — {xLbl}{x:F2}  {yLbl}{y:F2}  {zLbl}{z:F2}";
 
+                // Плейсхолдеры не перезатирают реальные изображения
                 ShowPlaceholders();
 
                 _app.SetLastScan(groupIndex, x, y, z, now);
@@ -308,7 +332,6 @@ namespace RoboScanner.Views
                 _log.Info("Scan", "Scan completed",
                     new { Group = groupIndex, GroupName = groupName, X = x, Y = y, Z = z, At = now.ToString("o") });
 
-                // учёт и авто-пауза при переполнении
                 var add = _groups.AddItemToGroup(groupIndex, x, y, z, now);
                 ScanHistoryService.Instance.Add(new ScanRecord(now, groupIndex, groupName, x, y, z));
 
@@ -341,9 +364,10 @@ namespace RoboScanner.Views
             }
             finally
             {
-                UpdateButtons(); // чтобы кнопки/статус всегда вернулись из «идёт сканирование»
+                UpdateButtons();
             }
         }
+
 
         /// <summary>
         /// Picks a random ACTIVE group and generates X/Y/Z:
