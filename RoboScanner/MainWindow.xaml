@@ -1,0 +1,114 @@
+﻿<Window x:Class="RoboScanner.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:v="clr-namespace:RoboScanner.Views"
+        xmlns:h="clr-namespace:RoboScanner.Helpers"
+        xmlns:svc="clr-namespace:RoboScanner.Services"
+        Title="RoboScanner" Height="720" Width="1200"
+        WindowStartupLocation="CenterScreen">
+
+    <!-- Требуемые ключи локализации (пример):
+         Sidebar.Title, Sidebar.Scan, Sidebar.GroupSetup, Sidebar.Groups,
+         Sidebar.Settings, Sidebar.Log, Sidebar.Stats
+    -->
+
+    <Window.Resources>
+        <!-- Кнопка сайдбара -->
+        <Style x:Key="SidebarButton" TargetType="Button">
+            <Setter Property="Margin" Value="0,6,0,0"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Background" Value="#FFFFFFFF"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10">
+                            <ContentPresenter VerticalAlignment="Center"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#60A5FA"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Чип статуса -->
+        <Style x:Key="StatusChip" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Margin" Value="0,6,0,0"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <!-- Конвертеры статуса -->
+        <h:IsRunningToTextConverter    x:Key="IsRunningText"/>
+        <h:OpStateToTextConverter      x:Key="OpText"/>
+        <h:IsRunningToBrushConverter   x:Key="RunBg"/>
+        <h:OpStateToBrushConverter     x:Key="OpBg"/>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ЛЕВАЯ ПАНЕЛЬ -->
+        <DockPanel Grid.Column="0" Background="#FAFAFA">
+            <!-- Верх: заголовок -->
+            <StackPanel DockPanel.Dock="Top" Margin="12,12,12,8">
+                <TextBlock Text="{DynamicResource Sidebar.Title}"
+                           FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                <Separator/>
+            </StackPanel>
+
+            <!-- Кнопки навигации -->
+            <StackPanel DockPanel.Dock="Top" Margin="12,0,12,0">
+                <Button Style="{StaticResource SidebarButton}" Tag="Scan"       Click="Nav_Click"
+                        Content="{DynamicResource Nav.Scan}"/>
+                <Button Style="{StaticResource SidebarButton}" Tag="GroupSetup" Click="Nav_Click"
+                        Content="{DynamicResource Nav.GroupSetup}"/>
+                <Button Style="{StaticResource SidebarButton}" Tag="Groups"     Click="Nav_Click"
+                        Content="{DynamicResource Nav.Groups}"/>
+                <Button Style="{StaticResource SidebarButton}" Tag="Settings"   Click="Nav_Click"
+                        Content="{DynamicResource Nav.Settings}"/>
+                <Button Style="{StaticResource SidebarButton}" Tag="Log"        Click="Nav_Click"
+                        Content="{DynamicResource Nav.Log}"/>
+                <Button Style="{StaticResource SidebarButton}" Tag="Stats"      Click="Nav_Click"
+                        Content="{DynamicResource Nav.Stats}"/>
+            </StackPanel>
+
+            <!-- НИЗ ЛЕВОЙ ПАНЕЛИ: глобальные статусы -->
+            <StackPanel DockPanel.Dock="Bottom" Margin="12"
+                        DataContext="{x:Static svc:AppStateService.Instance}">
+                <Border Style="{StaticResource StatusChip}"
+                        Background="{Binding IsRunning, Converter={StaticResource RunBg}}">
+                    <TextBlock Text="{Binding IsRunning, Converter={StaticResource IsRunningText}}"
+                               FontWeight="SemiBold"/>
+                </Border>
+
+                <Border Style="{StaticResource StatusChip}"
+                        Background="{Binding OpState, Converter={StaticResource OpBg}}">
+                    <TextBlock Text="{Binding OpState, Converter={StaticResource OpText}}"/>
+                </Border>
+            </StackPanel>
+
+            <!-- наполнитель, чтобы кнопки тянулись от верха, а статусы прижались вниз -->
+            <Border Background="Transparent"/>
+        </DockPanel>
+
+        <!-- ПРАВО: контент -->
+        <ContentControl x:Name="MainContent" Grid.Column="1"/>
+    </Grid>
+</Window>

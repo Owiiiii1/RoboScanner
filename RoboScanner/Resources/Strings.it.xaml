@@ -1,0 +1,174 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <sys:String x:Key="Sidebar.Title">RoboScanner</sys:String>
+    <sys:String x:Key="Nav.Title">Navigazione</sys:String>
+    <sys:String x:Key="Nav.Scan">Scansione</sys:String>
+    <sys:String x:Key="Nav.GroupSetup">Configurazione gruppi</sys:String>
+    <sys:String x:Key="Nav.Groups">Gruppi</sys:String>
+    <sys:String x:Key="Nav.Settings">Impostazioni</sys:String>
+    <sys:String x:Key="Nav.Log">Log</sys:String>
+    <sys:String x:Key="Nav.Stats">Statistiche</sys:String>
+
+    <sys:String x:Key="Scan.Program">Programma:</sys:String>
+    <sys:String x:Key="Scan.Status">Stato:</sys:String>
+    <sys:String x:Key="Scan.Program.Running">In esecuzione</sys:String>
+    <sys:String x:Key="Scan.Program.Stopped">Arrestato</sys:String>
+    <sys:String x:Key="Scan.State.Wait">In attesa</sys:String>
+    <sys:String x:Key="Scan.State.Scanning">Scansione…</sys:String>
+    <sys:String x:Key="Scan.State.Done">Completato</sys:String>
+
+    <sys:String x:Key="Scan.Btn.Start">Avvia</sys:String>
+    <sys:String x:Key="Scan.Btn.Stop">Ferma</sys:String>
+    <sys:String x:Key="Scan.Btn.ScanOnce">Scansiona</sys:String>
+
+    <sys:String x:Key="Scan.LastResult">Ultimo risultato</sys:String>
+    <sys:String x:Key="Scan.Group">Gruppo:</sys:String>
+    <sys:String x:Key="Scan.Time">Ora:</sys:String>
+    <sys:String x:Key="Scan.Sizes">Dimensioni (mm)</sys:String>
+    <sys:String x:Key="Scan.BottomCam">Camera inferiore</sys:String>
+    <sys:String x:Key="Scan.SideCam">Camera laterale</sys:String>
+
+    <sys:String x:Key="Settings.Title">Impostazioni</sys:String>
+    <sys:String x:Key="Settings.Language">Lingua dell'interfaccia</sys:String>
+    <sys:String x:Key="Settings.Lang.RU">Русский</sys:String>
+    <sys:String x:Key="Settings.Lang.EN">English</sys:String>
+    <sys:String x:Key="Settings.Lang.IT">Italiano</sys:String>
+
+    <sys:String x:Key="Settings.Camera1">Camera 1</sys:String>
+    <sys:String x:Key="Settings.Camera2">Camera 2</sys:String>
+    <sys:String x:Key="Settings.Refresh">Aggiornare</sys:String>
+
+    <!-- Group Setup -->
+    <sys:String x:Key="GroupSetup.Title">Configurazione gruppi</sys:String>
+    <sys:String x:Key="GroupSetup.Save">Salva</sys:String>
+    <sys:String x:Key="GroupSetup.Load">Carica</sys:String>
+    <sys:String x:Key="GroupSetup.Reset">Ripristina (predef. 15)</sys:String>
+
+    <sys:String x:Key="GroupSetup.Col.Name">Nome</sys:String>
+    <sys:String x:Key="GroupSetup.Col.Description">Descrizione</sys:String>
+    <sys:String x:Key="GroupSetup.Col.MaxX">MaxX (mm)</sys:String>
+    <sys:String x:Key="GroupSetup.Col.MaxY">MaxY (mm)</sys:String>
+    <sys:String x:Key="GroupSetup.Col.MaxZ">MaxZ (mm)</sys:String>
+
+    <sys:String x:Key="GroupSetup.Hint">Lascia vuoti MaxY/MaxZ se non necessari. Puoi salvare e caricare le modifiche.</sys:String>
+
+    <sys:String x:Key="GroupSetup.SaveOk.Title">Salvataggio</sys:String>
+    <sys:String x:Key="GroupSetup.SaveOk.Body">Regole salvate.</sys:String>
+    <sys:String x:Key="GroupSetup.LoadOk.Title">Caricamento</sys:String>
+    <sys:String x:Key="GroupSetup.LoadOk.Body">Regole caricate.</sys:String>
+    <sys:String x:Key="GroupSetup.ResetConfirm.Title">Ripristino</sys:String>
+    <sys:String x:Key="GroupSetup.ResetConfirm.Body">Ripristinare alle 15 impostazioni predefinite?</sys:String>
+
+    <sys:String x:Key="GroupSetup.Col.Enable">Stato</sys:String>
+    <sys:String x:Key="GroupSetup.Col.RobotGroup">Gruppo robot</sys:String>
+    
+
+    <sys:String x:Key="GroupSetup.Toggle.Enable">Abilita</sys:String>
+    <sys:String x:Key="GroupSetup.Toggle.Disable">Disabilita</sys:String>
+
+
+
+    <!-- Log page -->
+    <sys:String x:Key="Log.Title">Registro eventi</sys:String>
+    <sys:String x:Key="Log.OpenFile">Apri file</sys:String>
+    <sys:String x:Key="Log.OpenFolder">Apri cartella</sys:String>
+    <sys:String x:Key="Log.Clear">Pulisci elenco</sys:String>
+    <sys:String x:Key="Log.OpenTable">Apri in tabella…</sys:String>
+    <sys:String x:Key="Log.Col.Time">Ora</sys:String>
+    <sys:String x:Key="Log.Col.Level">Livello</sys:String>
+    <sys:String x:Key="Log.Col.Source">Origine</sys:String>
+    <sys:String x:Key="Log.Col.Message">Messaggio</sys:String>
+    <sys:String x:Key="Log.Col.Data">Dati</sys:String>
+    <sys:String x:Key="Log.Hint">Il registro viene scritto in logs/app.log (una riga JSON per voce).</sys:String>
+
+    <!-- Log viewer window -->
+    <sys:String x:Key="LogViewer.Title">Visualizzatore log</sys:String>
+    <sys:String x:Key="LogViewer.Pick">Scegli file…</sys:String>
+    <sys:String x:Key="LogViewer.Reload">Ricarica</sys:String>
+    <sys:String x:Key="LogViewer.From">Da:</sys:String>
+    <sys:String x:Key="LogViewer.To">A:</sys:String>
+    <sys:String x:Key="LogViewer.Type">Tipo:</sys:String>
+    <sys:String x:Key="LogViewer.Type.All">Tutti</sys:String>
+    <sys:String x:Key="LogViewer.Type.Application">Applicazione</sys:String>
+    <sys:String x:Key="LogViewer.Type.Scan">Scansione</sys:String>
+    <sys:String x:Key="LogViewer.Type.Other">Altro</sys:String>
+    <sys:String x:Key="LogViewer.Error.ReadTitle">Errore</sys:String>
+    <sys:String x:Key="LogViewer.Error.ReadBody">Impossibile leggere il file di log:</sys:String>
+    <sys:String x:Key="LogViewer.Status.FileNotSelected">Nessun file selezionato</sys:String>
+    <sys:String x:Key="LogViewer.Status.CountFormat">Visualizzati: {0} / Totale: {1}</sys:String>
+
+    <!-- Scan data display -->
+    <sys:String x:Key="Log.Scan.DisplayFormat">Gruppo - {0} - x ( {1} ) - y ( {2} ) - z ( {3} ) - {4} ( {5} )</sys:String>
+
+    <!-- Groups page -->
+    <sys:String x:Key="Groups.Title">Gruppi</sys:String>
+    <sys:String x:Key="Groups.LastLabel">Ultimo:</sys:String>
+    <sys:String x:Key="Groups.Tooltip.Clear">Svuota gruppo</sys:String>
+
+    <!-- Dialoghi / messaggi -->
+    <sys:String x:Key="Groups.Confirm.ResetCount.Title">Conferma</sys:String>
+    <sys:String x:Key="Groups.Confirm.ResetCount.Body">Azzerare il contatore del gruppo “{0}” (#{1})?</sys:String>
+
+    <sys:String x:Key="Groups.Confirm.ClearGroup.Title">Conferma</sys:String>
+    <sys:String x:Key="Groups.Confirm.ClearGroup.Body">Svuotare il gruppo “{0}” (#{1})? Il contatore e le ultime misure verranno azzerati.</sys:String>
+
+    <sys:String x:Key="Groups.Alert.CannotClearWhileRunning.Title">Avviso</sys:String>
+    <sys:String x:Key="Groups.Alert.CannotClearWhileRunning.Body">Impossibile svuotare un gruppo durante l’esecuzione. Metti in pausa la scansione.</sys:String>
+
+    <sys:String x:Key="Groups.Alert.Cleared.Title">Fatto</sys:String>
+    <sys:String x:Key="Groups.Alert.Cleared.Body">Il gruppo “{0}” è stato svuotato.</sys:String>
+
+    <sys:String x:Key="Groups.Alert.ResetDone.Title">Fatto</sys:String>
+    <sys:String x:Key="Groups.Alert.ResetDone.Body">Il gruppo “{0}” è stato azzerato. Puoi continuare la scansione.</sys:String>
+
+    <!-- Scan: message boxes -->
+    <sys:String x:Key="Scan.Alert.NoActiveGroups.Title">Avviso</sys:String>
+    <sys:String x:Key="Scan.Alert.NoActiveGroups.Body">Nessun gruppo attivo nelle impostazioni. Specifica le dimensioni per almeno un gruppo.</sys:String>
+
+    <sys:String x:Key="Scan.Alert.GroupOverflow.Title">Attenzione</sys:String>
+    <sys:String x:Key="Scan.Alert.GroupOverflow.Body">Il gruppo “{0}” è pieno ({1}). La scansione è stata messa in pausa.</sys:String>
+
+    <!-- Stats -->
+    <sys:String x:Key="Stats.HeaderPrimary">Statistiche (base)</sys:String>
+    <sys:String x:Key="Stats.SessionFromStart">Dall'inizio della sessione</sys:String>
+    <sys:String x:Key="Stats.FromLabel">Da:</sys:String>
+    <sys:String x:Key="Stats.ToLabel">A:</sys:String>
+    <sys:String x:Key="Stats.TotalLabel">Scansionati:</sys:String>
+    <sys:String x:Key="Stats.Range.NotSelected">Seleziona le date “Da” e “A”</sys:String>
+    <sys:String x:Key="Stats.Range.Invalid">Intervallo non valido</sys:String>
+    <sys:String x:Key="Stats.Placeholder.Second">(Qui appariranno i widget #2)</sys:String>
+    <sys:String x:Key="Stats.Placeholder.Third">(Qui appariranno i widget #3)</sys:String>
+
+    <!-- RoboGrroup Settings -->
+
+    <sys:String x:Key="Settings.Groups.SectionTitle">Impostazioni gruppi robot</sys:String>
+    <sys:String x:Key="Settings.Groups.Label">Gruppo</sys:String>
+    <sys:String x:Key="Settings.Groups.Button.Open">Impostazioni</sys:String>
+
+    <sys:String x:Key="Group.Window.Title">Impostazioni gruppo</sys:String>
+    <sys:String x:Key="Group.Field.Name">Nome del gruppo</sys:String>
+    <sys:String x:Key="Group.Header.Connection">Connessione (Modbus TCP)</sys:String>
+    <sys:String x:Key="Group.Field.Host">Indirizzo IP (Host)</sys:String>
+    <sys:String x:Key="Group.Field.Port">Porta</sys:String>
+    <sys:String x:Key="Group.Field.UnitId">UnitId (SlaveId)</sys:String>
+    <sys:String x:Key="Group.Header.Exchange">Scambio</sys:String>
+    <sys:String x:Key="Group.Field.Timeout">Timeout (ms)</sys:String>
+    <sys:String x:Key="Group.Header.MainCoil">Canale principale</sys:String>
+    <sys:String x:Key="Group.Field.Coil">Indirizzo coil</sys:String>
+    <sys:String x:Key="Group.Field.Pulse">Tempo impulso (sec)</sys:String>
+
+    <sys:String x:Key="Common.Save">Salva</sys:String>
+    <sys:String x:Key="Common.Cancel">Annulla</sys:String>
+
+    <sys:String x:Key="Msg.SelectGroup">Seleziona un gruppo.</sys:String>
+    <sys:String x:Key="Msg.PortInvalid">La porta deve essere &gt; 0.</sys:String>
+    <sys:String x:Key="Msg.CoilRange">L'indirizzo coil deve essere 0–29.</sys:String>
+    <sys:String x:Key="Msg.PulseNegative">I secondi dell'impulso non possono essere negativi.</sys:String>
+
+    <sys:String x:Key="Groups.StartRobot">Avvio robot</sys:String>
+    <sys:String x:Key="Group.Field.Pulse.Tooltip">
+        Quanti secondi mantenere il relè acceso, poi spegnerlo. Lasciare vuoto o 0 per tenerlo acceso senza spegnimento automatico.
+    </sys:String>
+
+</ResourceDictionary>

@@ -1,0 +1,181 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Навигация -->
+    <sys:String x:Key="Sidebar.Title">RoboScanner</sys:String>
+    <sys:String x:Key="Nav.Title">Навигация</sys:String>
+    <sys:String x:Key="Nav.Scan">Сканирование</sys:String>
+    <sys:String x:Key="Nav.GroupSetup">Настройка групп</sys:String>
+    <sys:String x:Key="Nav.Groups">Группы</sys:String>
+    <sys:String x:Key="Nav.Settings">Настройки</sys:String>
+    <sys:String x:Key="Nav.Log">Лог</sys:String>
+    <sys:String x:Key="Nav.Stats">Статистика</sys:String>
+
+    <!-- Сканирование -->
+    <sys:String x:Key="Scan.Program">Программа:</sys:String>
+    <sys:String x:Key="Scan.Status">Статус:</sys:String>
+    <sys:String x:Key="Scan.Program.Running">Запущена</sys:String>
+    <sys:String x:Key="Scan.Program.Stopped">Остановлена</sys:String>
+    <sys:String x:Key="Scan.State.Wait">Ожидание</sys:String>
+    <sys:String x:Key="Scan.State.Scanning">Идёт сканирование…</sys:String>
+    <sys:String x:Key="Scan.State.Done">Отсканировано</sys:String>
+
+    <sys:String x:Key="Scan.Btn.Start">Запустить</sys:String>
+    <sys:String x:Key="Scan.Btn.Stop">Остановить</sys:String>
+    <sys:String x:Key="Scan.Btn.ScanOnce">Сканировать</sys:String>
+
+    <sys:String x:Key="Scan.LastResult">Последний результат</sys:String>
+    <sys:String x:Key="Scan.Group">Группа:</sys:String>
+    <sys:String x:Key="Scan.Time">Время:</sys:String>
+    <sys:String x:Key="Scan.Sizes">Размеры (мм)</sys:String>
+    <sys:String x:Key="Scan.BottomCam">Камера снизу</sys:String>
+    <sys:String x:Key="Scan.SideCam">Камера сбоку</sys:String>
+
+
+
+    <!-- Настройки -->
+    <sys:String x:Key="Settings.Title">Настройки</sys:String>
+    <sys:String x:Key="Settings.Language">Язык интерфейса</sys:String>
+    <sys:String x:Key="Settings.Lang.RU">Русский</sys:String>
+    <sys:String x:Key="Settings.Lang.EN">English</sys:String>
+    <sys:String x:Key="Settings.Lang.IT">Italiano</sys:String>
+
+    <sys:String x:Key="Settings.Camera1">Камера 1</sys:String>
+    <sys:String x:Key="Settings.Camera2">Камера 2</sys:String>
+    <sys:String x:Key="Settings.Refresh">Обновить</sys:String>
+
+    <!-- Group Setup -->
+    <sys:String x:Key="GroupSetup.Title">Настройка групп</sys:String>
+    <sys:String x:Key="GroupSetup.Save">Сохранить</sys:String>
+    <sys:String x:Key="GroupSetup.Load">Загрузить</sys:String>
+    <sys:String x:Key="GroupSetup.Reset">Сброс (дефолт 15)</sys:String>
+
+    <sys:String x:Key="GroupSetup.Col.Name">Имя</sys:String>
+    <sys:String x:Key="GroupSetup.Col.Description">Описание</sys:String>
+    <sys:String x:Key="GroupSetup.Col.MaxX">MaxX (мм)</sys:String>
+    <sys:String x:Key="GroupSetup.Col.MaxY">MaxY (мм)</sys:String>
+    <sys:String x:Key="GroupSetup.Col.MaxZ">MaxZ (мм)</sys:String>
+
+    <sys:String x:Key="GroupSetup.Hint">Оставьте пустыми MaxY/MaxZ, если ограничения не нужны. Изменения можно сохранять и загружать.</sys:String>
+
+    <sys:String x:Key="GroupSetup.SaveOk.Title">Сохранение</sys:String>
+    <sys:String x:Key="GroupSetup.SaveOk.Body">Правила сохранены.</sys:String>
+    <sys:String x:Key="GroupSetup.LoadOk.Title">Загрузка</sys:String>
+    <sys:String x:Key="GroupSetup.LoadOk.Body">Правила загружены.</sys:String>
+    <sys:String x:Key="GroupSetup.ResetConfirm.Title">Сброс</sys:String>
+    <sys:String x:Key="GroupSetup.ResetConfirm.Body">Сбросить к 15 группам по умолчанию?</sys:String>
+    
+    <sys:String x:Key="GroupSetup.Col.Enable">Статус</sys:String>
+    <sys:String x:Key="GroupSetup.Col.RobotGroup">Группа робота</sys:String>
+    
+
+
+    <sys:String x:Key="GroupSetup.Toggle.Enable">Включить</sys:String>
+    <sys:String x:Key="GroupSetup.Toggle.Disable">Выключить</sys:String>
+
+
+
+    <!-- Log page -->
+    <sys:String x:Key="Log.Title">Лог событий</sys:String>
+    <sys:String x:Key="Log.OpenFile">Открыть файл</sys:String>
+    <sys:String x:Key="Log.OpenFolder">Открыть папку</sys:String>
+    <sys:String x:Key="Log.Clear">Очистить список</sys:String>
+    <sys:String x:Key="Log.OpenTable">Открыть в таблице…</sys:String>
+    <sys:String x:Key="Log.Col.Time">Время</sys:String>
+    <sys:String x:Key="Log.Col.Level">Уровень</sys:String>
+    <sys:String x:Key="Log.Col.Source">Источник</sys:String>
+    <sys:String x:Key="Log.Col.Message">Сообщение</sys:String>
+    <sys:String x:Key="Log.Col.Data">Данные</sys:String>
+    <sys:String x:Key="Log.Hint">Лог пишется в файл logs/app.log (одна JSON-строка на запись).</sys:String>
+
+    <!-- Log viewer window -->
+    <sys:String x:Key="LogViewer.Title">Просмотр лога</sys:String>
+    <sys:String x:Key="LogViewer.Pick">Выбрать файл…</sys:String>
+    <sys:String x:Key="LogViewer.Reload">Обновить</sys:String>
+    <sys:String x:Key="LogViewer.From">С:</sys:String>
+    <sys:String x:Key="LogViewer.To">По:</sys:String>
+    <sys:String x:Key="LogViewer.Type">Тип:</sys:String>
+    <sys:String x:Key="LogViewer.Type.All">Все</sys:String>
+    <sys:String x:Key="LogViewer.Type.Application">Приложение</sys:String>
+    <sys:String x:Key="LogViewer.Type.Scan">Скан</sys:String>
+    <sys:String x:Key="LogViewer.Type.Other">Другое</sys:String>
+    <sys:String x:Key="LogViewer.Error.ReadTitle">Ошибка</sys:String>
+    <sys:String x:Key="LogViewer.Error.ReadBody">Не удалось прочитать файл лога:</sys:String>
+    <sys:String x:Key="LogViewer.Status.FileNotSelected">Файл не выбран</sys:String>
+    <sys:String x:Key="LogViewer.Status.CountFormat">Показано: {0} / Всего: {1}</sys:String>
+
+    <!-- Scan data display -->
+    <sys:String x:Key="Log.Scan.DisplayFormat">Группа - {0} - x ( {1} ) - y ( {2} ) - z ( {3} ) - {4} ( {5} )</sys:String>
+
+    <!-- Groups page -->
+    <sys:String x:Key="Groups.Title">Группы</sys:String>
+    <sys:String x:Key="Groups.LastLabel">Последнее:</sys:String>
+    <sys:String x:Key="Groups.Tooltip.Clear">Очистить группу</sys:String>
+
+    <!-- Dialogs / messages -->
+    <sys:String x:Key="Groups.Confirm.ResetCount.Title">Подтверждение</sys:String>
+    <sys:String x:Key="Groups.Confirm.ResetCount.Body">Сбросить счётчик группы «{0}» (#{1}) до 0?</sys:String>
+
+    <sys:String x:Key="Groups.Confirm.ClearGroup.Title">Подтверждение</sys:String>
+    <sys:String x:Key="Groups.Confirm.ClearGroup.Body">Очистить группу «{0}» (#{1})? Будут обнулены счётчик и последние замеры.</sys:String>
+
+    <sys:String x:Key="Groups.Alert.CannotClearWhileRunning.Title">Предупреждение</sys:String>
+    <sys:String x:Key="Groups.Alert.CannotClearWhileRunning.Body">Нельзя очистить группу во время работы. Поставьте сканирование на паузу.</sys:String>
+
+    <sys:String x:Key="Groups.Alert.Cleared.Title">Готово</sys:String>
+    <sys:String x:Key="Groups.Alert.Cleared.Body">Группа «{0}» очищена.</sys:String>
+
+    <sys:String x:Key="Groups.Alert.ResetDone.Title">Готово</sys:String>
+    <sys:String x:Key="Groups.Alert.ResetDone.Body">Группа «{0}» сброшена. Можно продолжать сканирование.</sys:String>
+
+    <!-- Scan: message boxes -->
+    <sys:String x:Key="Scan.Alert.NoActiveGroups.Title">Предупреждение</sys:String>
+    <sys:String x:Key="Scan.Alert.NoActiveGroups.Body">Нет активных групп в настройках. Укажите размеры хотя бы для одной группы.</sys:String>
+
+    <sys:String x:Key="Scan.Alert.GroupOverflow.Title">Внимание</sys:String>
+    <sys:String x:Key="Scan.Alert.GroupOverflow.Body">Группа «{0}» переполнена ({1}). Сканирование поставлено на паузу.</sys:String>
+
+    <!-- Stats -->
+    <sys:String x:Key="Stats.HeaderPrimary">Статистика (основное)</sys:String>
+    <sys:String x:Key="Stats.SessionFromStart">С начала сеанса</sys:String>
+    <sys:String x:Key="Stats.FromLabel">От:</sys:String>
+    <sys:String x:Key="Stats.ToLabel">До:</sys:String>
+    <sys:String x:Key="Stats.TotalLabel">Отсканировано:</sys:String>
+    <sys:String x:Key="Stats.Range.NotSelected">Выберите даты «От» и «До»</sys:String>
+    <sys:String x:Key="Stats.Range.Invalid">Неверный интервал</sys:String>
+    <sys:String x:Key="Stats.Placeholder.Second">(Здесь появятся виджеты статистики №2)</sys:String>
+    <sys:String x:Key="Stats.Placeholder.Third">(Здесь появятся виджеты статистики №3)</sys:String>
+
+
+    <!-- RoboGrroup Settings -->
+
+    <sys:String x:Key="Settings.Groups.SectionTitle">Настройки групп робота</sys:String>
+    <sys:String x:Key="Settings.Groups.Label">Группа</sys:String>
+    <sys:String x:Key="Settings.Groups.Button.Open">Настройки</sys:String>
+
+    <sys:String x:Key="Group.Window.Title">Настройки группы</sys:String>
+    <sys:String x:Key="Group.Field.Name">Имя группы</sys:String>
+    <sys:String x:Key="Group.Header.Connection">Подключение (Modbus TCP)</sys:String>
+    <sys:String x:Key="Group.Field.Host">IP-адрес (Host)</sys:String>
+    <sys:String x:Key="Group.Field.Port">Порт</sys:String>
+    <sys:String x:Key="Group.Field.UnitId">UnitId (SlaveId)</sys:String>
+    <sys:String x:Key="Group.Header.Exchange">Обмен</sys:String>
+    <sys:String x:Key="Group.Field.Timeout">Таймаут (мс)</sys:String>
+    <sys:String x:Key="Group.Header.MainCoil">Главный канал</sys:String>
+    <sys:String x:Key="Group.Field.Coil">Адрес катушки</sys:String>
+    <sys:String x:Key="Group.Field.Pulse">Время импульса (сек)</sys:String>
+
+    <sys:String x:Key="Common.Save">Сохранить</sys:String>
+    <sys:String x:Key="Common.Cancel">Отмена</sys:String>
+
+    <sys:String x:Key="Msg.SelectGroup">Выберите группу.</sys:String>
+    <sys:String x:Key="Msg.PortInvalid">Порт должен быть &gt; 0.</sys:String>
+    <sys:String x:Key="Msg.CoilRange">Адрес катушки должен быть 0–29.</sys:String>
+    <sys:String x:Key="Msg.PulseNegative">Время импульса не может быть отрицательным.</sys:String>
+
+    <sys:String x:Key="Groups.StartRobot">Старт робот</sys:String>
+    <sys:String x:Key="Group.Field.Pulse.Tooltip">
+        Сколько секунд держать реле включённым, затем выключить. Оставьте пусто или 0 — без авто-выключения.
+    </sys:String>
+</ResourceDictionary>

@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="RoboScanner.Views.LogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок + действия -->
+        <DockPanel Margin="0,0,0,8">
+            <TextBlock Text="{DynamicResource Log.Title}" Style="{StaticResource SectionHeader}" Margin="0,0,15,0" DockPanel.Dock="Left"/>
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                <Button Content="{DynamicResource Log.OpenFile}" Margin="0,0,8,0" Padding="16,0" Click="BtnOpenFile_Click"/>
+                <Button Content="{DynamicResource Log.OpenFolder}" Margin="0,0,8,0" Padding="16,0" Click="BtnOpenFolder_Click"/>
+                <Button Content="{DynamicResource Log.OpenTable}" Margin="0,0,8,0" Padding="16,0" Click="BtnOpenViewer_Click"/>
+                <Button Content="{DynamicResource Log.Clear}" Padding="16,0" Click="BtnClear_Click"/>
+
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Таблица лога -->
+        <DataGrid x:Name="GridLog" Grid.Row="1" ItemsSource="{Binding Entries}"
+              AutoGenerateColumns="False" IsReadOnly="True"
+              GridLinesVisibility="Horizontal" HeadersVisibility="Column">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="{DynamicResource Log.Col.Time}" Binding="{Binding Timestamp, StringFormat='{}{0:g}'}"
+                            Width="160"/>
+                <DataGridTextColumn Header="{DynamicResource Log.Col.Level}" Binding="{Binding Level}" Width="80"/>
+                <DataGridTextColumn Header="{DynamicResource Log.Col.Source}" Binding="{Binding Source}" Width="120"/>
+                <DataGridTextColumn Header="{DynamicResource Log.Col.Message}" Binding="{Binding Message}" Width="200"/>
+                <DataGridTextColumn Header="{DynamicResource Log.Col.Data}" Binding="{Binding DisplayData}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock Grid.Row="2" Margin="0,8,0,0" Foreground="#FF6B7280" FontSize="12"
+               Text="{DynamicResource Log.Hint}"/>
+    </Grid>
+</UserControl>
