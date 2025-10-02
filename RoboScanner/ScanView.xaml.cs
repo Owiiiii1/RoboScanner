@@ -158,6 +158,18 @@ namespace RoboScanner.Views
             _app.OpState = OperationState.Scanning;
             UpdateButtons();
 
+            // Будем сюда складывать миллиметры; по умолчанию 0
+            double lengthMm = 0;  // TOP.Width  -> X
+            double widthMm = 0;  // TOP.Height -> Y
+            double heightMm = 0;  // SIDE.Height-> Z
+
+            // Флаги диагностики
+            bool roiTopFound = false;
+            bool roiSideFound = false;
+            bool calibTopOk = false;
+            bool calibSideOk = false;
+
+
             try
             {
                 // --- 1) Выбор камер по сохранённым Moniker ---
@@ -170,72 +182,138 @@ namespace RoboScanner.Views
                 string? cam2 = CameraDiscoveryService.Instance.FindByMoniker(all, saved2)?.Moniker
                                ?? all.ElementAtOrDefault(1)?.Moniker;
 
-                // Маленький паддинг вокруг найденного ROI, чтобы не резать объект "впритык"
-                const int pad = 12;
+              
+
+                // ПАДДИНГ ТОЛЬКО ДЛЯ ДИСПЛЕЯ, НЕ ДЛЯ ИЗМЕРЕНИЯ!
+                static OpenCvSharp.Rect InflateAndClip(OpenCvSharp.Rect r, int pad, int w, int h)
+                {
+                    int x = Math.Max(0, r.X - pad);
+                    int y = Math.Max(0, r.Y - pad);
+                    int rw = Math.Min(r.Width + 2 * pad, w - x);
+                    int rh = Math.Min(r.Height + 2 * pad, h - y);
+                    return new OpenCvSharp.Rect(x, y, rw, rh);
+                }
 
                 // --- 2) Локальная функция обработки одной камеры ---
-                async Task ProcessOneAsync(string moniker, System.Windows.Controls.Image imgView, System.Windows.Controls.TextBlock noImgLabel)
+                // --- 2) Локальная функция обработки одной камеры ---
+                // ВОЗВРАЩАЕМ roiMeasure — БЕЗ ПАДДИНГА
+                async Task<(bool ok, OpenCvSharp.Rect roiMeasure, int cols, int rows)> ProcessOneAsync(
+                    string moniker,
+                    System.Windows.Controls.Image imgView,
+                    System.Windows.Controls.TextBlock noImgLabel)
                 {
-                    // 2.1 Захват исходного кадра (BGR)
-                    using var frame = await Capture.CaptureOnceAsync(moniker);
+                    using var frame = await Capture.CaptureOnceAsync(moniker); // BGR
 
-                    // 2.2 Бинаризация ТОЛЬКО ДЛЯ ПОИСКА ROI (на экран её НЕ выводим)
-                    //     Otsu + CLAHE обычно стабильнее для неоднородного освещения
                     var binOpt = new BinarizationService.Options
                     {
-                        UseAdaptive = false,                 // -> Otsu
-                        UseClahe = true,                  // локальное выравнивание контраста
+                        UseAdaptive = false,
+                        UseClahe = true,
                         ClaheClipLimit = 2.0,
                         ClaheTileGrid = new OpenCvSharp.Size(8, 8),
                         BlurKernel = 3,
-                        Invert = true,                  // хотим белый объект на бинарке
-                        KeepSingleObject = false                  // изображение НЕ меняем
+                        Invert = true,
+                        KeepSingleObject = false
                     };
                     using var bin = BinarizationService.Instance.Binarize(frame, binOpt);
 
-                    // 2.3 Поиск крупнейшего объекта и получение его прямоугольника
-                    if (BinarizationService.Instance.TryGetLargestObjectRoi(bin, out CvRect roi, minAreaPx: 0))
+                    if (BinarizationService.Instance.TryGetLargestObjectRoi(bin, out var roi, minAreaPx: 0))
                     {
-                        // Безопасный паддинг и ограничение границами
-                        roi.X = Math.Max(0, roi.X - pad);
-                        roi.Y = Math.Max(0, roi.Y - pad);
-                        roi.Width = Math.Min(roi.Width + 2 * pad, frame.Cols - roi.X);
-                        roi.Height = Math.Min(roi.Height + 2 * pad, frame.Rows - roi.Y);
+                        var roiMeasure = roi; // <— вот этот идёт в расчёт мм
 
-                        _log.Info("ROI", $"Crop {roi.Width}x{roi.Height} at ({roi.X},{roi.Y})");
+                        // а это — только для красивого предпросмотра
+                        const int pad = 12;
+                        var roiDisplay = InflateAndClip(roi, pad, frame.Cols, frame.Rows);
 
-                        // 2.4 КРОП исходного кадра и показ (WPF любит BGRA)
-                        using var crop = new Mat(frame, roi);
+                        using var crop = new Mat(frame, roiDisplay);
                         using var cropBgra = new Mat();
                         Cv2.CvtColor(crop, cropBgra, ColorConversionCodes.BGR2BGRA);
                         imgView.Source = cropBgra.ToWriteableBitmap();
                         noImgLabel.Visibility = Visibility.Collapsed;
+
+                        return (true, roiMeasure, frame.Cols, frame.Rows);
                     }
                     else
                     {
-                        // 2.5 Если ROI не найден — покажем диагностическую бинарку (сразу видно, что не так)
                         using var dbg = new Mat();
                         Cv2.CvtColor(bin, dbg, ColorConversionCodes.GRAY2BGRA);
                         imgView.Source = dbg.ToWriteableBitmap();
                         noImgLabel.Visibility = Visibility.Collapsed;
-                        _log.Warn("ROI", "ROI not found; showing diagnostic binary frame");
+                        return (false, default, frame.Cols, frame.Rows);
                     }
                 }
 
+
                 // --- 3) Обработка обеих камер ---
-                if (cam1 != null) await ProcessOneAsync(cam1, ImgCam1, LblNoImg1);
+                (bool okTop, CvRect roiTop, int wTop, int hTop) = (false, default, 0, 0);
+                (bool okSide, CvRect roiSide, int wSide, int hSide) = (false, default, 0, 0);
+
+                // Камера 1 — считаем TOP (длина/ширина)
+                if (cam1 != null)
+                {
+                    (okTop, roiTop, wTop, hTop) = await ProcessOneAsync(cam1, ImgCam1, LblNoImg1);
+                }
                 else
                 {
                     ImgCam1.Source = null; LblNoImg1.Visibility = Visibility.Visible;
                     _log.Warn("Camera", "Camera1 is not selected or not found");
                 }
 
-                if (cam2 != null) await ProcessOneAsync(cam2, ImgCam2, LblNoImg2);
+                // Камера 2 — считаем SIDE (высота)
+                if (cam2 != null)
+                {
+                    (okSide, roiSide, wSide, hSide) = await ProcessOneAsync(cam2, ImgCam2, LblNoImg2);
+                }
                 else
                 {
                     ImgCam2.Source = null; LblNoImg2.Visibility = Visibility.Visible;
                     _log.Warn("Camera", "Camera2 is not selected or not found");
                 }
+
+                // === Пересчёт px -> мм по калибровке (0, если что-то не так) ===
+                //double kTop = AppSettings.Default.KTop;
+                //double kSide = AppSettings.Default.KSide;
+                //double distTopMm = AppSettings.Default.TopDistanceMm;
+                //double distSideMm = AppSettings.Default.SideDistanceMm;
+
+                //double mmPerPxTop = (kTop > 0 && distTopMm > 0) ? kTop * distTopMm : 0;
+                //double mmPerPxSide = (kSide > 0 && distSideMm > 0) ? kSide * distSideMm : 0;
+
+                double mmPerPxTop = AppSettings.Default.MmPerPxTop;   // мм/px для верхней камеры
+                double mmPerPxSide = AppSettings.Default.MmPerPxSide;  // мм/px для боковой
+
+                // определяем, были ли найдены ROI (okTop/okSide у тебя получены из ProcessOneAsync)
+                roiTopFound = okTop;
+                roiSideFound = okSide;
+                calibTopOk = (mmPerPxTop > 0);
+                calibSideOk = (mmPerPxSide > 0);
+
+                // TOP -> длина/ширина (или 0)
+                if (roiTopFound && calibTopOk)
+                {
+                    lengthMm = roiTop.Width * mmPerPxTop;
+                    widthMm = roiTop.Height * mmPerPxTop;
+                }
+                else
+                {
+                    lengthMm = 0;
+                    widthMm = 0;
+                    if (!roiTopFound) _log.Warn("Scan.TOP", "ROI not found → set Length/Width = 0");
+                    else _log.Warn("Scan.TOP", "Calibration missing → set Length/Width = 0 (KTop or TopDistanceMm <= 0)");
+                }
+
+                // SIDE -> высота (или 0)
+                if (roiSideFound && calibSideOk)
+                {
+                    heightMm = roiSide.Height * mmPerPxSide;
+                }
+                else
+                {
+                    heightMm = 0;
+                    if (!roiSideFound) _log.Warn("Scan.SIDE", "ROI not found → set Height = 0");
+                    else _log.Warn("Scan.SIDE", "Calibration missing → set Height = 0 (KSide or SideDistanceMm <= 0)");
+                }
+
+
             }
             catch (Exception ex)
             {
@@ -245,9 +323,18 @@ namespace RoboScanner.Views
                 ImgCam2.Source = null; LblNoImg2.Visibility = Visibility.Visible;
             }
 
+            
+            
+            
+            
             // --- 4) Дальнейшая логика сканирования — БЕЗ ИЗМЕНЕНИЙ ---
             try
             {
+                
+                
+                
+                
+                
                 var sim = SimulateFromActiveGroups();
                 if (sim == null)
                 {
@@ -263,6 +350,12 @@ namespace RoboScanner.Views
                 }
 
                 var (groupIndex, groupName, x, y, z) = sim.Value;
+
+                // Подставляем измеренные размеры (или нули, если не получилось)
+                x = lengthMm;   // длина (TOP.Width)
+                y = widthMm;    // ширина (TOP.Height)
+                z = heightMm;   // высота (SIDE.Height)
+
 
                 var rule = RulesService.Instance.Rules.FirstOrDefault(r => r.Index == groupIndex);
                 var robotIdx = rule?.RobotGroup;

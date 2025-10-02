@@ -122,5 +122,12 @@ namespace RoboScanner.Views
                 MessageBox.Show(Loc.Get("Msg.SelectGroup"), Loc.Get("Group.Window.Title"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
+
+        private void OnOpenCalibrationClick(object sender, RoutedEventArgs e)
+        {
+            var win = new CalibrationWindow();
+            win.Owner = Window.GetWindow(this);
+            win.ShowDialog();
+        }
     }
 }

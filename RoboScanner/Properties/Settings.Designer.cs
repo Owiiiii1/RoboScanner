@@ -58,5 +58,113 @@ namespace RoboScanner.Properties {
                 this["Camera2Id"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("500")]
+        public double TopDistanceMm {
+            get {
+                return ((double)(this["TopDistanceMm"]));
+            }
+            set {
+                this["TopDistanceMm"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("500")]
+        public double SideDistanceMm {
+            get {
+                return ((double)(this["SideDistanceMm"]));
+            }
+            set {
+                this["SideDistanceMm"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public double RefLengthMm {
+            get {
+                return ((double)(this["RefLengthMm"]));
+            }
+            set {
+                this["RefLengthMm"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        public double RefWidthMm {
+            get {
+                return ((double)(this["RefWidthMm"]));
+            }
+            set {
+                this["RefWidthMm"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        public double RefHeightMm {
+            get {
+                return ((double)(this["RefHeightMm"]));
+            }
+            set {
+                this["RefHeightMm"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double KTop {
+            get {
+                return ((double)(this["KTop"]));
+            }
+            set {
+                this["KTop"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double KSide {
+            get {
+                return ((double)(this["KSide"]));
+            }
+            set {
+                this["KSide"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double MmPerPxTop {
+            get {
+                return ((double)(this["MmPerPxTop"]));
+            }
+            set {
+                this["MmPerPxTop"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double MmPerPxSide {
+            get {
+                return ((double)(this["MmPerPxSide"]));
+            }
+            set {
+                this["MmPerPxSide"] = value;
+            }
+        }
     }
 }

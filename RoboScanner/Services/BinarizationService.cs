@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenCvSharp;
+using CvRect = OpenCvSharp.Rect;
 
 namespace RoboScanner.Services
 {
