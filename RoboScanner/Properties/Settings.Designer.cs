@@ -166,5 +166,113 @@ namespace RoboScanner.Properties {
                 this["MmPerPxSide"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseAdaptive {
+            get {
+                return ((bool)(this["UseAdaptive"]));
+            }
+            set {
+                this["UseAdaptive"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("41")]
+        public int AdaptiveBlockSize {
+            get {
+                return ((int)(this["AdaptiveBlockSize"]));
+            }
+            set {
+                this["AdaptiveBlockSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        public int AdaptiveC {
+            get {
+                return ((int)(this["AdaptiveC"]));
+            }
+            set {
+                this["AdaptiveC"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseClahe {
+            get {
+                return ((bool)(this["UseClahe"]));
+            }
+            set {
+                this["UseClahe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3.5")]
+        public double ClaheClipLimit {
+            get {
+                return ((double)(this["ClaheClipLimit"]));
+            }
+            set {
+                this["ClaheClipLimit"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        public int ClaheTileGrid {
+            get {
+                return ((int)(this["ClaheTileGrid"]));
+            }
+            set {
+                this["ClaheTileGrid"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public int BlurKernel {
+            get {
+                return ((int)(this["BlurKernel"]));
+            }
+            set {
+                this["BlurKernel"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Invert {
+            get {
+                return ((bool)(this["Invert"]));
+            }
+            set {
+                this["Invert"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public double MinAreaPct {
+            get {
+                return ((double)(this["MinAreaPct"]));
+            }
+            set {
+                this["MinAreaPct"] = value;
+            }
+        }
     }
 }

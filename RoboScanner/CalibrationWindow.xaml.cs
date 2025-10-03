@@ -24,9 +24,12 @@ namespace RoboScanner
         private enum TopMap { WidthIsLength, HeightIsLength }
         private TopMap _topMapping = TopMap.WidthIsLength;
 
+
+
         public CalibrationWindow()
         {
             InitializeComponent();
+            LoadBinSettingsToUi();
 
             // Показать текущие сохранённые коэффициенты (если есть)
             LblTop.Text = (AppSettings.Default.MmPerPxTop > 0) ? $"mm/px(top)={AppSettings.Default.MmPerPxTop:0.###}" : "mm/px(top) не задан";
@@ -60,6 +63,30 @@ namespace RoboScanner
             return Math.Abs(a - b) / Math.Max(Math.Abs(a), Math.Abs(b) + 1e-9);
         }
 
+        private void LoadBinSettingsToUi()
+        {
+            TxtAdaptiveBlock.Text = (AppSettings.Default.AdaptiveBlockSize > 0
+                                        ? AppSettings.Default.AdaptiveBlockSize : 41).ToString();
+            TxtAdaptiveC.Text = (AppSettings.Default.AdaptiveC != 0
+                                        ? AppSettings.Default.AdaptiveC : 3).ToString();
+            ChkUseAdaptive.IsChecked = AppSettings.Default.UseAdaptive;
+
+            TxtClaheClip.Text = (AppSettings.Default.ClaheClipLimit > 0
+                                        ? AppSettings.Default.ClaheClipLimit : 3.5)
+                                        .ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+            TxtClaheTiles.Text = (AppSettings.Default.ClaheTileGrid > 0
+                                        ? AppSettings.Default.ClaheTileGrid : 4).ToString();
+            ChkUseClahe.IsChecked = AppSettings.Default.UseClahe;
+
+            TxtBlurKernel.Text = (AppSettings.Default.BlurKernel >= 0
+                                        ? AppSettings.Default.BlurKernel : 5).ToString();
+            ChkInvert.IsChecked = AppSettings.Default.Invert;
+
+            TxtMinAreaPct.Text = (AppSettings.Default.MinAreaPct >= 0
+                                        ? AppSettings.Default.MinAreaPct : 2.0)
+                                        .ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
         // ========================== КАЛИБРОВАТЬ ==========================
         private async void BtnCalibrate_Click(object sender, RoutedEventArgs e)
         {
@@ -79,14 +106,37 @@ namespace RoboScanner
 
                 var binOpt = new BinarizationService.Options
                 {
-                    UseAdaptive = false,   // Otsu
-                    UseClahe = true,
-                    ClaheClipLimit = 2.0,
-                    ClaheTileGrid = new OpenCvSharp.Size(8, 8),
-                    BlurKernel = 3,
-                    Invert = true,
+                    UseAdaptive = AppSettings.Default.UseAdaptive,
+                    AdaptiveBlockSize = AppSettings.Default.AdaptiveBlockSize,
+                    AdaptiveC = AppSettings.Default.AdaptiveC,
+                    UseClahe = AppSettings.Default.UseClahe,
+                    ClaheClipLimit = AppSettings.Default.ClaheClipLimit,
+                    ClaheTileGrid = new OpenCvSharp.Size(
+                            Math.Max(1, AppSettings.Default.ClaheTileGrid),
+                            Math.Max(1, AppSettings.Default.ClaheTileGrid)),
+                    BlurKernel = AppSettings.Default.BlurKernel,
+                    Invert = AppSettings.Default.Invert,
                     KeepSingleObject = false
                 };
+
+                if (binOpt.AdaptiveBlockSize < 3) binOpt.AdaptiveBlockSize = 3;
+                if ((binOpt.AdaptiveBlockSize & 1) == 0) binOpt.AdaptiveBlockSize += 1;
+
+                if (binOpt.BlurKernel < 0) binOpt.BlurKernel = 0;
+                if (binOpt.BlurKernel != 0 && (binOpt.BlurKernel & 1) == 0) binOpt.BlurKernel += 1;
+
+                if (binOpt.ClaheTileGrid.Width < 1 || binOpt.ClaheTileGrid.Height < 1)
+                    binOpt.ClaheTileGrid = new OpenCvSharp.Size(1, 1);
+
+                if (binOpt.ClaheClipLimit <= 0) binOpt.ClaheClipLimit = 3.5;
+
+                int ComputeMinAreaPxFromSettings(int cols, int rows)
+                {
+                    double pct = Math.Max(0, AppSettings.Default.MinAreaPct);
+                    int area = Math.Max(1, cols * rows);
+                    int fromPct = (int)Math.Round(area * (pct / 100.0));
+                    return Math.Max(500, fromPct);
+                }
 
                 // -------- TOP (длина+ширина) --------
                 _topPxW = _topPxH = 0;
@@ -94,8 +144,10 @@ namespace RoboScanner
                 {
                     using var frame = await Capture.CaptureOnceAsync(camTop);
                     using var bin = BinarizationService.Instance.Binarize(frame, binOpt);
+                    int minAreaPx = ComputeMinAreaPxFromSettings(frame.Cols, frame.Rows);
 
-                    if (BinarizationService.Instance.TryGetLargestObjectRoi(bin, out var roi, 0))
+                    if (BinarizationService.Instance.TryGetLargestObjectRoi(bin, out var roi, minAreaPx))
+
                     {
                         // предпросмотр с паддингом
                         var disp = InflateAndClip(roi, 12, frame.Cols, frame.Rows);
@@ -135,8 +187,9 @@ namespace RoboScanner
                 {
                     using var frame = await Capture.CaptureOnceAsync(camSide);
                     using var bin = BinarizationService.Instance.Binarize(frame, binOpt);
+                    int minAreaPx = ComputeMinAreaPxFromSettings(frame.Cols, frame.Rows);
 
-                    if (BinarizationService.Instance.TryGetLargestObjectRoi(bin, out var roi, 0))
+                    if (BinarizationService.Instance.TryGetLargestObjectRoi(bin, out var roi, minAreaPx))
                     {
                         var disp = InflateAndClip(roi, 12, frame.Cols, frame.Rows);
                         using (var crop = new Mat(frame, disp))
@@ -285,25 +338,27 @@ namespace RoboScanner
                 string? camSide = CameraDiscoveryService.Instance.FindByMoniker(all, AppSettings.Default.Camera2Id)?.Moniker
                                   ?? all.ElementAtOrDefault(1)?.Moniker;
 
-                var binOpt = new BinarizationService.Options
-                {
-                    UseAdaptive = false,
-                    UseClahe = true,
-                    ClaheClipLimit = 2.0,
-                    ClaheTileGrid = new OpenCvSharp.Size(8, 8),
-                    BlurKernel = 3,
-                    Invert = true,
-                    KeepSingleObject = false
-                };
+                var binOpt = BuildBinOptionsFromUi();
+
 
                 double L = 0, W = 0, H = 0;
+
+                int ComputeMinAreaPxFromSettings(int cols, int rows)
+                {
+                    double pct = Math.Max(0, AppSettings.Default.MinAreaPct);
+                    int area = Math.Max(1, cols * rows);
+                    int fromPct = (int)Math.Round(area * (pct / 100.0));
+                    return Math.Max(500, fromPct);
+                }
 
                 // TOP
                 if (camTop != null)
                 {
                     using var frame = await Capture.CaptureOnceAsync(camTop);
                     using var bin = BinarizationService.Instance.Binarize(frame, binOpt);
-                    if (BinarizationService.Instance.TryGetLargestObjectRoi(bin, out var roi, 0))
+                    int minAreaPx = ComputeMinAreaPxFromSettings(frame.Cols, frame.Rows);
+
+                    if (BinarizationService.Instance.TryGetLargestObjectRoi(bin, out var roi, minAreaPx))
                     {
                         var disp = InflateAndClip(roi, 12, frame.Cols, frame.Rows);
                         using (var crop = new Mat(frame, disp))
@@ -331,7 +386,9 @@ namespace RoboScanner
                 {
                     using var frame = await Capture.CaptureOnceAsync(camSide);
                     using var bin = BinarizationService.Instance.Binarize(frame, binOpt);
-                    if (BinarizationService.Instance.TryGetLargestObjectRoi(bin, out var roi, 0))
+                    int minAreaPx = ComputeMinAreaPxFromSettings(frame.Cols, frame.Rows);
+
+                    if (BinarizationService.Instance.TryGetLargestObjectRoi(bin, out var roi, minAreaPx))
                     {
                         var disp = InflateAndClip(roi, 12, frame.Cols, frame.Rows);
                         using (var crop = new Mat(frame, disp))
@@ -355,5 +412,118 @@ namespace RoboScanner
                 MessageBox.Show(ex.Message, "Сканирование: ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        // ==== LIVE bin settings helpers (UI -> Options) ====
+        // парсинг
+        private static int ParseIntSafe(string? s, int fb)
+            => int.TryParse(s, out var v) ? v : fb;
+
+        private static double ParseDoubleSafe(string? s, double fb)
+            => double.TryParse(s, System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : fb;
+
+        // собрать опции бинаризации из контролов окна (если нет — дефолты)
+        private BinarizationService.Options BuildBinOptionsFromUi()
+        {
+            bool useAdaptive = (ChkUseAdaptive?.IsChecked == true);
+            int blockSize = ParseIntSafe(TxtAdaptiveBlock?.Text, 41);
+            if (blockSize < 3) blockSize = 3;
+            if ((blockSize & 1) == 0) blockSize++; // нечётное
+
+            int adaptiveC = ParseIntSafe(TxtAdaptiveC?.Text, 3);
+
+            bool useClahe = (ChkUseClahe?.IsChecked == true);
+            double clip = ParseDoubleSafe(TxtClaheClip?.Text, 3.5);
+            int tiles = Math.Max(1, ParseIntSafe(TxtClaheTiles?.Text, 4));
+
+            int blur = Math.Max(0, ParseIntSafe(TxtBlurKernel?.Text, 5));
+            if (blur % 2 == 0 && blur != 0) blur++; // нечётное ядро (или 0=off)
+
+            bool invert = (ChkInvert?.IsChecked == true);
+
+            return new BinarizationService.Options
+            {
+                UseAdaptive = useAdaptive,
+                AdaptiveBlockSize = blockSize,
+                AdaptiveC = adaptiveC,
+                UseClahe = useClahe,
+                ClaheClipLimit = clip,
+                ClaheTileGrid = new OpenCvSharp.Size(tiles, tiles),
+                BlurKernel = blur,
+                Invert = invert,
+                KeepSingleObject = false
+            };
+        }
+
+        // минимальная площадь объекта в пикселях из UI-процента
+        private int ComputeMinAreaPxFromUi(int cols, int rows)
+        {
+            double pct = Math.Max(0, ParseDoubleSafe(TxtMinAreaPct?.Text, 2.0)); // %
+            int area = Math.Max(1, cols * rows);
+            int fromPct = (int)Math.Round(area * (pct / 100.0));
+            return Math.Max(500, fromPct); // предохранитель
+        }
+
+        private void BtnSaveSettings_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // читаем
+                bool useAdaptive = ChkUseAdaptive.IsChecked == true;
+                int blockSize = ParseIntSafe(TxtAdaptiveBlock.Text, 41);
+                int adaptiveC = ParseIntSafe(TxtAdaptiveC.Text, 3);
+
+                bool useClahe = ChkUseClahe.IsChecked == true;
+                double clipLimit = ParseDoubleSafe(TxtClaheClip.Text, 3.5);
+                int tileGrid = ParseIntSafe(TxtClaheTiles.Text, 4);
+
+                int blurKernel = ParseIntSafe(TxtBlurKernel.Text, 5);
+                bool invert = ChkInvert.IsChecked == true;
+
+                double minAreaPct = ParseDoubleSafe(TxtMinAreaPct.Text, 2.0);
+
+                // нормализация значений
+                if (blockSize < 3) blockSize = 3;
+                if ((blockSize & 1) == 0) blockSize += 1;     // adaptive block — нечётный
+
+                if (blurKernel < 0) blurKernel = 0;
+                if (blurKernel != 0 && (blurKernel & 1) == 0) // blur — нечётный (или 0 = выкл)
+                    blurKernel += 1;
+
+                if (tileGrid < 1) tileGrid = 1;               // хотя бы 1×1
+                if (clipLimit <= 0) clipLimit = 3.5;          // безопасный дефолт
+
+                if (minAreaPct < 0) minAreaPct = 0;
+                if (minAreaPct > 20) minAreaPct = 20;         // здравый верхний предел
+
+                // сохраняем
+                AppSettings.Default.UseAdaptive = useAdaptive;
+                AppSettings.Default.AdaptiveBlockSize = blockSize;
+                AppSettings.Default.AdaptiveC = adaptiveC;
+
+                AppSettings.Default.UseClahe = useClahe;
+                AppSettings.Default.ClaheClipLimit = clipLimit;
+                AppSettings.Default.ClaheTileGrid = tileGrid;
+
+                AppSettings.Default.BlurKernel = blurKernel;
+                AppSettings.Default.Invert = invert;
+
+                AppSettings.Default.MinAreaPct = minAreaPct;
+
+                AppSettings.Default.Save();
+
+                MessageBox.Show("Настройки бинаризации сохранены.", "Сохранено",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка сохранения",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+
+
     }
 }

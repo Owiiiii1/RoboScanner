@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Калибровка"
+        
         Height="720" Width="980"
         MinHeight="600" MinWidth="820"
         WindowStartupLocation="CenterOwner">
@@ -33,10 +34,11 @@
                             <ColumnDefinition Width="140"/>
                             <ColumnDefinition Width="160"/>
                             <ColumnDefinition Width="24"/>
-                            <ColumnDefinition Width="140"/>
-                            <ColumnDefinition Width="160"/>
+                            
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="8"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="8"/>
                             <RowDefinition Height="Auto"/>
@@ -45,8 +47,8 @@
                         <!-- L / W -->
                         <TextBlock Text="Длина (L):" VerticalAlignment="Center"/>
                         <TextBox x:Name="TxtOutL" Grid.Column="1" Margin="6,0,0,0" Height="28"/>
-                        <TextBlock Text="Ширина (W):" Grid.Column="3" VerticalAlignment="Center"/>
-                        <TextBox x:Name="TxtOutW" Grid.Column="4" Margin="6,0,0,0" Height="28"/>
+                        <TextBlock Text="Ширина (W):" Grid.Row="4" VerticalAlignment="Center"/>
+                        <TextBox x:Name="TxtOutW" Grid.Row="4" Grid.Column="1" Margin="6,0,0,0" Height="28"/>
 
                         <!-- H -->
                         <TextBlock Text="Высота (H):" Grid.Row="2" VerticalAlignment="Center"/>
@@ -55,14 +57,27 @@
                 </GroupBox>
 
                 <!-- Кнопки: адаптивные (переносятся при узком окне) -->
-                <WrapPanel Grid.Column="2" VerticalAlignment="Center" ItemWidth="150" ItemHeight="36">
-                    <Button x:Name="BtnCalibrate" Content="Калибровать" Width="150" Height="36"
+
+                <Grid Grid.Column="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="16"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="8"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="8"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                    <Button x:Name="BtnCalibrate" Grid.Column="1" Grid.Row="1" Content="Калибровать" Width="150" Height="36" Margin="8,0,0,0"
                             Click="BtnCalibrate_Click"/>
-                    <Button x:Name="BtnTestScan" Content="Сканировать" Width="150" Height="36"
+                        <Button x:Name="BtnTestScan" Grid.Column="1" Grid.Row="3" Content="Сканировать" Width="150" Height="36"
                             Margin="8,0,0,0" Click="BtnTestScan_Click"/>
-                    <Button x:Name="BtnSave" Content="Сохранить" Width="150" Height="36"
+                        <Button x:Name="BtnSave" Grid.Column="1" Grid.Row="5" Content="Сохранить" Width="150" Height="36"
                             Margin="8,0,0,0" Click="BtnSave_Click"/>
-                </WrapPanel>
+                    </Grid>
+                
             </Grid>
         </Border>
 
@@ -79,24 +94,24 @@
 
                 <!-- Левая колонка -->
                 <StackPanel Grid.Column="0" Orientation="Vertical" Margin="12,8,12,0">
-                    <CheckBox x:Name="ChkUseAdaptive" Content="Adaptive threshold (Mean/GaussianC)"/>
-                    <DockPanel LastChildFill="True">
+                    <CheckBox x:Name="ChkUseAdaptive" Content="Adaptive threshold (Mean/GaussianC)" Margin="0,0,0,0" ToolTip="Адаптивное порогование: локальный порог по окну. Полезно при неравномерном освещении. Если фон ровный — можно выключить и использовать Otsu."/>
+                    <DockPanel LastChildFill="True" Margin="0,10,0,10">
                         <TextBlock Text="Block size (odd ≥3)" VerticalAlignment="Center" Width="180"/>
-                        <TextBox x:Name="TxtAdaptiveBlock" Height="26" MinWidth="80" Margin="6,0,0,0"/>
+                        <TextBox x:Name="TxtAdaptiveBlock" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="Размер окна для адаптивного порогования (только нечётный). Большое окно сглаживает тени, но может терять мелкие детали. Обычно 31–51."/>
                     </DockPanel>
-                    <DockPanel LastChildFill="True">
+                    <DockPanel LastChildFill="True" Margin="0,0,0,10">
                         <TextBlock Text="C" VerticalAlignment="Center" Width="180"/>
-                        <TextBox x:Name="TxtAdaptiveC" Height="26" MinWidth="80" Margin="6,0,0,0"/>
+                        <TextBox x:Name="TxtAdaptiveC" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="Смещение порога (C): выше — объект светлее (больше белого), ниже — темнее. Типично 2–7."/>
                     </DockPanel>
 
-                    <CheckBox x:Name="ChkUseClahe" Content="CLAHE (локальное выравнивание)"/>
+                    <CheckBox x:Name="ChkUseClahe" Content="CLAHE (локальное выравнивание)" Margin="0,10,0,10" ToolTip="Локальное выравнивание контраста. Помогает отделять светлые объекты на светлом фоне и подавлять мягкие тени."/>
                     <DockPanel LastChildFill="True">
                         <TextBlock Text="ClipLimit" VerticalAlignment="Center" Width="180"/>
-                        <TextBox x:Name="TxtClaheClip" Height="26" MinWidth="80" Margin="6,0,0,0"/>
+                        <TextBox x:Name="TxtClaheClip" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="Ограничение усиления контраста в CLAHE. Больше — агрессивнее (2.0–4.0 обычно). Слишком большое может усиливать шум/блики."/>
                     </DockPanel>
-                    <DockPanel LastChildFill="True">
+                    <DockPanel LastChildFill="True" Margin="0,10,0,0">
                         <TextBlock Text="TileGrid (N x N)" VerticalAlignment="Center" Width="180"/>
-                        <TextBox x:Name="TxtClaheTiles" Height="26" MinWidth="80" Margin="6,0,0,0"/>
+                        <TextBox x:Name="TxtClaheTiles" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="Размер сетки для CLAHE. Меньше N — более локальная коррекция. Обычно 4–8."/>
                     </DockPanel>
                 </StackPanel>
 
@@ -104,17 +119,23 @@
                 <StackPanel Grid.Column="2" Orientation="Vertical" Margin="12,8,12,0">
                     <DockPanel LastChildFill="True">
                         <TextBlock Text="Blur kernel (odd, 0=off)" VerticalAlignment="Center" Width="220"/>
-                        <TextBox x:Name="TxtBlurKernel" Height="26" MinWidth="80" Margin="6,0,0,0"/>
+                        <TextBox x:Name="TxtBlurKernel" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="Гауссово размытие перед порогованием. 0 — выкл. Нечётные значения 3/5/7 сглаживают шум и тени, но могут подсъедать края."/>
                     </DockPanel>
 
-                    <CheckBox x:Name="ChkInvert" Content="Invert (объект белый)"/>
+                    <CheckBox x:Name="ChkInvert" Content="Invert (объект белый)" Margin="0,10,0,10" ToolTip="Инверсия бинарного изображения. Оставляйте включённым, если алгоритм ожидает «объект = белый», а фон — чёрный."/>
 
                     <DockPanel LastChildFill="True">
                         <TextBlock Text="Min area, % кадра (0..10)" VerticalAlignment="Center" Width="220"/>
-                        <TextBox x:Name="TxtMinAreaPct" Height="26" MinWidth="80" Margin="6,0,0,0"/>
+                        <TextBox x:Name="TxtMinAreaPct" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="Минимальная площадь компоненты как процент от площади кадра. Подавляет мусор/блики. Типично 1–3%."/>
+                    </DockPanel>
+                    <DockPanel LastChildFill="True">
+
+                        <Button x:Name="BtnSaveSettings"  Content="Сохранить настройки" Width="150" Height="36" Margin="8,10,0,0"
+                            Click="BtnSaveSettings_Click"/>
                     </DockPanel>
                 </StackPanel>
             </Grid>
+            
         </GroupBox>
 
         <!-- Отступ -->

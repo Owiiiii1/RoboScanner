@@ -14,6 +14,7 @@ using AppSettings = RoboScanner.Properties.Settings;
 using CvRect = OpenCvSharp.Rect;
 
 
+
 namespace RoboScanner.Views
 {
     public partial class ScanView : UserControl
@@ -22,6 +23,45 @@ namespace RoboScanner.Views
         private readonly GroupsService _groups = GroupsService.Instance;
         private readonly LogService _log = LogService.Instance;
         private CaptureManager Capture => CaptureManager.Instance;
+
+        // Собрать опции бинаризации из Сохранённых настроек (AppSettings)
+        private BinarizationService.Options BuildBinOptionsFromSettings()
+        {
+            // нормализация, как в калибровке
+            int block = AppSettings.Default.AdaptiveBlockSize;
+            if (block < 3) block = 3;
+            if ((block & 1) == 0) block += 1;
+
+            int blur = AppSettings.Default.BlurKernel;
+            if (blur < 0) blur = 0;
+            if (blur != 0 && (blur & 1) == 0) blur += 1;
+
+            int tiles = Math.Max(1, AppSettings.Default.ClaheTileGrid);
+            double clip = AppSettings.Default.ClaheClipLimit > 0 ? AppSettings.Default.ClaheClipLimit : 3.5;
+
+            return new BinarizationService.Options
+            {
+                UseAdaptive = AppSettings.Default.UseAdaptive,
+                AdaptiveBlockSize = block,
+                AdaptiveC = AppSettings.Default.AdaptiveC,
+                UseClahe = AppSettings.Default.UseClahe,
+                ClaheClipLimit = clip,
+                ClaheTileGrid = new OpenCvSharp.Size(tiles, tiles),
+                BlurKernel = blur,
+                Invert = AppSettings.Default.Invert,
+                KeepSingleObject = false // мы ищем ROI, изображение не трогаем
+            };
+        }
+
+        // Перевод процента площади из настроек в пиксели
+        private int ComputeMinAreaPxFromSettings(int cols, int rows)
+        {
+            double pct = Math.Max(0, AppSettings.Default.MinAreaPct); // % кадра
+            int area = Math.Max(1, cols * rows);
+            int fromPct = (int)Math.Round(area * (pct / 100.0));
+            return Math.Max(500, fromPct); // предохранитель, как в калибровке
+        }
+
 
 
         private bool _isScanInProgress;
@@ -198,39 +238,35 @@ namespace RoboScanner.Views
                 // --- 2) Локальная функция обработки одной камеры ---
                 // ВОЗВРАЩАЕМ roiMeasure — БЕЗ ПАДДИНГА
                 async Task<(bool ok, OpenCvSharp.Rect roiMeasure, int cols, int rows)> ProcessOneAsync(
-                    string moniker,
-                    System.Windows.Controls.Image imgView,
-                    System.Windows.Controls.TextBlock noImgLabel)
+    string moniker,
+    System.Windows.Controls.Image imgView,
+    System.Windows.Controls.TextBlock noImgLabel)
                 {
                     using var frame = await Capture.CaptureOnceAsync(moniker); // BGR
 
-                    var binOpt = new BinarizationService.Options
-                    {
-                        UseAdaptive = false,
-                        UseClahe = true,
-                        ClaheClipLimit = 2.0,
-                        ClaheTileGrid = new OpenCvSharp.Size(8, 8),
-                        BlurKernel = 3,
-                        Invert = true,
-                        KeepSingleObject = false
-                    };
+                    var binOpt = BuildBinOptionsFromSettings();               // <<<<<<
                     using var bin = BinarizationService.Instance.Binarize(frame, binOpt);
 
-                    if (BinarizationService.Instance.TryGetLargestObjectRoi(bin, out var roi, minAreaPx: 0))
+                    int minAreaPx = ComputeMinAreaPxFromSettings(frame.Cols, frame.Rows); // <<<<<<
+
+                    if (BinarizationService.Instance.TryGetLargestObjectRoi(bin, out var roi, minAreaPx)) // <<<<<<
                     {
-                        var roiMeasure = roi; // <— вот этот идёт в расчёт мм
-
-                        // а это — только для красивого предпросмотра
+                        // Показ – с паддингом (только для UI)
                         const int pad = 12;
-                        var roiDisplay = InflateAndClip(roi, pad, frame.Cols, frame.Rows);
+                        int x = Math.Max(0, roi.X - pad);
+                        int y = Math.Max(0, roi.Y - pad);
+                        int w = Math.Min(roi.Width + 2 * pad, frame.Cols - x);
+                        int h = Math.Min(roi.Height + 2 * pad, frame.Rows - y);
 
-                        using var crop = new Mat(frame, roiDisplay);
-                        using var cropBgra = new Mat();
-                        Cv2.CvtColor(crop, cropBgra, ColorConversionCodes.BGR2BGRA);
-                        imgView.Source = cropBgra.ToWriteableBitmap();
-                        noImgLabel.Visibility = Visibility.Collapsed;
+                        using (var crop = new Mat(frame, new OpenCvSharp.Rect(x, y, w, h)))
+                        using (var bgra = new Mat())
+                        {
+                            Cv2.CvtColor(crop, bgra, ColorConversionCodes.BGR2BGRA);
+                            imgView.Source = bgra.ToWriteableBitmap();
+                            noImgLabel.Visibility = Visibility.Collapsed;
+                        }
 
-                        return (true, roiMeasure, frame.Cols, frame.Rows);
+                        return (true, roi, frame.Cols, frame.Rows); // измерения — из НЕрасширенного roi
                     }
                     else
                     {
@@ -241,6 +277,7 @@ namespace RoboScanner.Views
                         return (false, default, frame.Cols, frame.Rows);
                     }
                 }
+
 
 
                 // --- 3) Обработка обеих камер ---
