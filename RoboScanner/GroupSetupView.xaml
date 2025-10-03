@@ -197,13 +197,35 @@
         </DataGrid>
 
         <!-- Кнопки управления (без Default) -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
-            <Button Width="140" Height="32" Margin="0,0,8,0" Click="BtnLoad_Click"
-                    Content="{DynamicResource GroupSetup.Load}"/>
-            <!-- <Button Width="140" Height="32" Margin="0,0,8,0" Click="BtnReset_Click"
-                    Content="{DynamicResource GroupSetup.Reset}"/> -->
-            <Button Width="160" Height="32" Click="BtnSave_Click"
-                    Content="{DynamicResource GroupSetup.Save}"/>
-        </StackPanel>
+        <!-- Панель: слева имя текущего файла, справа три кнопки -->
+        <DockPanel Grid.Row="2" Margin="0,12,0,0">
+            <!-- СЛЕВА: имя текущего файла -->
+            <TextBlock x:Name="TxtCurrentFile"
+           DockPanel.Dock="Left"
+           VerticalAlignment="Center"
+           Text="{DynamicResource GroupSetup.CurrentFilePrefixFallback}"
+           TextTrimming="CharacterEllipsis"
+           Margin="0,0,12,0"/>
+
+
+            <!-- СПРАВА: кнопки -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="BtnOpen"
+                Width="120" Height="32" Margin="0,0,8,0"
+                Click="BtnOpen_Click"
+                Content="{DynamicResource GroupSetup.Open}"/>
+
+                <Button x:Name="BtnSave"
+                Width="120" Height="32" Margin="0,0,8,0"
+                Click="BtnSave_Click"
+                Content="{DynamicResource GroupSetup.Save}"/>
+
+                <Button x:Name="BtnSaveNew"
+                Width="140" Height="32"
+                Click="BtnSaveNew_Click"
+                Content="{DynamicResource GroupSetup.SaveNew}"/>
+            </StackPanel>
+        </DockPanel>
+
     </Grid>
 </UserControl>

@@ -46,6 +46,13 @@
     <sys:String x:Key="Settings.Refresh">Обновить</sys:String>
 
     <!-- Group Setup -->
+
+    <sys:String x:Key="GroupSetup.Open">Открыть...</sys:String>
+    <sys:String x:Key="GroupSetup.SaveNew">Сохранить новый...</sys:String>
+    <sys:String x:Key="GroupSetup.CurrentFilePrefix">текущий файл:</sys:String>
+    <sys:String x:Key="GroupSetup.FileNotSelected">—</sys:String>
+    <sys:String x:Key="GroupSetup.CurrentFilePrefixFallback">текущий файл: —</sys:String>
+
     <sys:String x:Key="GroupSetup.Title">Настройка групп</sys:String>
     <sys:String x:Key="GroupSetup.Save">Сохранить</sys:String>
     <sys:String x:Key="GroupSetup.Load">Загрузить</sys:String>
@@ -65,7 +72,15 @@
     <sys:String x:Key="GroupSetup.LoadOk.Body">Правила загружены.</sys:String>
     <sys:String x:Key="GroupSetup.ResetConfirm.Title">Сброс</sys:String>
     <sys:String x:Key="GroupSetup.ResetConfirm.Body">Сбросить к 15 группам по умолчанию?</sys:String>
-    
+    <sys:String x:Key="GroupSetup.NoFileSelected.Title">Файл не выбран</sys:String>
+    <sys:String x:Key="GroupSetup.NoFileSelected.Body">Сначала откройте файл или используйте «Сохранить новый…».</sys:String>
+
+    <sys:String x:Key="GroupSetup.Dialog.Open.Title">Открыть файл настроек</sys:String>
+    <sys:String x:Key="GroupSetup.Dialog.SaveNew.Title">Сохранить файл настроек как…</sys:String>
+    <sys:String x:Key="GroupSetup.Dialog.Filter.Json">Файлы правил (*.json)</sys:String>
+    <sys:String x:Key="GroupSetup.Dialog.Filter.All">Все файлы (*.*)</sys:String>
+
+
     <sys:String x:Key="GroupSetup.Col.Enable">Статус</sys:String>
     <sys:String x:Key="GroupSetup.Col.RobotGroup">Группа робота</sys:String>
     
@@ -178,4 +193,84 @@
     <sys:String x:Key="Group.Field.Pulse.Tooltip">
         Сколько секунд держать реле включённым, затем выключить. Оставьте пусто или 0 — без авто-выключения.
     </sys:String>
+
+    <sys:String x:Key="Calib.MmPerPxTopNotSet">mm/px(top) не задан</sys:String>
+    <sys:String x:Key="Calib.MmPerPxSideNotSet">mm/px(side) не задан</sys:String>
+
+    <sys:String x:Key="Calib.TopRoiFound">TOP ROI:</sys:String>
+    <sys:String x:Key="Calib.TopRoiNotFound">TOP: ROI не найден (показана бинарка)</sys:String>
+    <sys:String x:Key="Calib.TopNoCamera">TOP: камера не выбрана</sys:String>
+
+    <sys:String x:Key="Calib.SideRoiFound">SIDE ROI:</sys:String>
+    <sys:String x:Key="Calib.SideRoiNotFound">SIDE: ROI не найден (показана бинарка)</sys:String>
+    <sys:String x:Key="Calib.SideNoCamera">SIDE: камера не выбрана</sys:String>
+
+    <sys:String x:Key="Calib.ErrorTitle">Калибровка: ошибка</sys:String>
+    <sys:String x:Key="Calib.ErrorScanTitle">Сканирование: ошибка</sys:String>
+
+    <sys:String x:Key="Calib.NoPixelsTitle">Нет данных</sys:String>
+    <sys:String x:Key="Calib.NoPixelsBody">Сначала нажмите «Калибровать», чтобы получить пиксели ROI.</sys:String>
+
+    <sys:String x:Key="Calib.EnterPositiveLW">Введите положительные L/W.</sys:String>
+    <sys:String x:Key="Calib.EnterPositiveH">Введите положительную высоту.</sys:String>
+
+    <sys:String x:Key="Calib.SaveOk.Title">Сохранено</sys:String>
+    <sys:String x:Key="Calib.SaveOk.Body">Сохранено. Обычный скан будет использовать новые коэффициенты mm/px.</sys:String>
+
+    <sys:String x:Key="Calib.NoCalibrationTitle">Нет калибровки</sys:String>
+    <sys:String x:Key="Calib.NoCalibrationBody">Коэффициенты mm/px не заданы. Сначала «Калибровать» → «Сохранить».</sys:String>
+
+    <sys:String x:Key="Calib.BinarizeSaved.Title">Сохранено</sys:String>
+    <sys:String x:Key="Calib.BinarizeSaved.Body">Настройки бинаризации сохранены.</sys:String>
+    <sys:String x:Key="Calib.BinarizeSaveError.Title">Ошибка сохранения</sys:String>
+
+    <sys:String x:Key="Settings.Btn.Calibrate">Калибровать</sys:String>
+
+    <!-- Calibration window: заголовки/лейблы/кнопки -->
+    <sys:String x:Key="Calib.Window.Title">Калибровка</sys:String>
+    <sys:String x:Key="Calib.Group.PartSizeMm">Размеры детали (мм)</sys:String>
+    <sys:String x:Key="Calib.TopCamera">Верхняя камера</sys:String>
+    <sys:String x:Key="Calib.SideCamera">Боковая камера</sys:String>
+    <sys:String x:Key="Calib.Preview">Предпросмотр</sys:String>
+
+    <sys:String x:Key="Calib.Label.Length">Длина (L):</sys:String>
+    <sys:String x:Key="Calib.Label.Width">Ширина (W):</sys:String>
+    <sys:String x:Key="Calib.Label.Height">Высота (H):</sys:String>
+    <sys:String x:Key="Calib.Label.Threshold">Порог</sys:String>
+    <sys:String x:Key="Calib.Label.StructElem">Структурирующий элемент</sys:String>
+    <sys:String x:Key="Calib.Label.Iterations">Итерации</sys:String>
+    <sys:String x:Key="Calib.Label.MinAreaPct">Мин. площадь, % кадра (0..10)</sys:String>
+    <sys:String x:Key="Calib.Label.BlockSize">Размер окна (нечётный ≥3)</sys:String>
+    <sys:String x:Key="Calib.Label.C">C</sys:String>
+    <sys:String x:Key="Calib.Label.ClipLimit">ClipLimit</sys:String>
+    <sys:String x:Key="Calib.Label.TileGrid">TileGrid (N × N)</sys:String>
+    <sys:String x:Key="Calib.Label.BlurKernel">Ядро размытия (нечётн., 0=выкл)</sys:String>
+    <sys:String x:Key="Calib.Clahe">CLAHE (локальное выравнивание)</sys:String>
+
+    <sys:String x:Key="Calib.TopMap.WidthIsLength">Карта сверху: ширина = длина</sys:String>
+    <sys:String x:Key="Calib.TopMap.HeightIsLength">Карта сверху: высота = длина</sys:String>
+    <sys:String x:Key="Calib.AutoBinarize">Авто-бинаризация</sys:String>
+    <sys:String x:Key="Calib.InvertObjectWhite">Инвертировать (объект белый)</sys:String>
+
+    <sys:String x:Key="Calib.Btn.Calibrate">Калибровать</sys:String>
+    <sys:String x:Key="Calib.Btn.Save">Сохранить</sys:String>
+    <sys:String x:Key="Calib.Btn.TestScan">Тестовый скан</sys:String>
+    <sys:String x:Key="Calib.Btn.SaveBinarize">Сохранить бинаризацию</sys:String>
+
+    
+    <sys:String x:Key="Calib.Group.BinarizeMorph">Бинаризация / Морфология</sys:String>
+    <sys:String x:Key="Calib.AdaptiveThreshold">Адаптивное порогование (Mean/GaussianC)</sys:String>
+
+    <!-- ToolTips -->
+    <sys:String x:Key="Calib.TT.AdaptiveThreshold">Адаптивное порогование: локальный порог по окну. Полезно при неравномерном освещении. Если фон ровный — выключите и используйте Otsu.</sys:String>
+    <sys:String x:Key="Calib.TT.BlockSize">Размер окна для адаптивного порога (нечётный). Большой — сглаживает тени, но теряет детали. Обычно 31–51.</sys:String>
+    <sys:String x:Key="Calib.TT.C">Смещение порога (C): выше — светлее объект, ниже — темнее. Обычно 2–7.</sys:String>
+    <sys:String x:Key="Calib.TT.Clahe">CLAHE — локальное выравнивание контраста. Помогает отделять светлые объекты на светлом фоне, подавляет мягкие тени.</sys:String>
+    <sys:String x:Key="Calib.TT.ClipLimit">Ограничение усиления контраста в CLAHE. Больше = сильнее (обычно 2.0–4.0). Слишком большое усиливает шум/блики.</sys:String>
+    <sys:String x:Key="Calib.TT.TileGrid">Размер сетки для CLAHE. Меньше N — более локальная коррекция. Обычно 4–8.</sys:String>
+    <sys:String x:Key="Calib.TT.BlurKernel">Гауссово размытие перед порогованием. 0 — выкл. 3/5/7 сглаживают шум и тени, но могут «съедать» края.</sys:String>
+    <sys:String x:Key="Calib.TT.Invert">Инвертирует бинарное изображение. Оставляйте включённым, если алгоритм ожидает объект=белый, фон=чёрный.</sys:String>
+    <sys:String x:Key="Calib.TT.MinAreaPct">Минимальная площадь компоненты как % площади кадра. Фильтрует шум/блики. Обычно 1–3%.</sys:String>
+
+
 </ResourceDictionary>

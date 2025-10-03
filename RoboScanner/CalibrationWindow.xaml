@@ -1,7 +1,7 @@
 ﻿<Window x:Class="RoboScanner.CalibrationWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Калибровка"
+        Title="{DynamicResource Calib.Window.Title}"
         
         Height="720" Width="980"
         MinHeight="600" MinWidth="820"
@@ -28,7 +28,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Блок размеров (редактируемые) -->
-                <GroupBox Header="Размеры детали (мм)" Grid.Column="0" Padding="10">
+                <GroupBox Header="{DynamicResource Calib.Group.PartSizeMm}" Grid.Column="0" Padding="10">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="140"/>
@@ -45,13 +45,13 @@
                         </Grid.RowDefinitions>
 
                         <!-- L / W -->
-                        <TextBlock Text="Длина (L):" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Calib.Label.Length}" VerticalAlignment="Center"/>
                         <TextBox x:Name="TxtOutL" Grid.Column="1" Margin="6,0,0,0" Height="28"/>
-                        <TextBlock Text="Ширина (W):" Grid.Row="4" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Calib.Label.Width}" Grid.Row="4" VerticalAlignment="Center"/>
                         <TextBox x:Name="TxtOutW" Grid.Row="4" Grid.Column="1" Margin="6,0,0,0" Height="28"/>
 
                         <!-- H -->
-                        <TextBlock Text="Высота (H):" Grid.Row="2" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Calib.Label.Height}" Grid.Row="2" VerticalAlignment="Center"/>
                         <TextBox x:Name="TxtOutH" Grid.Row="2" Grid.Column="1" Margin="6,0,0,0" Height="28"/>
                     </Grid>
                 </GroupBox>
@@ -70,11 +70,11 @@
                             <RowDefinition Height="8"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                    <Button x:Name="BtnCalibrate" Grid.Column="1" Grid.Row="1" Content="Калибровать" Width="150" Height="36" Margin="8,0,0,0"
+                    <Button x:Name="BtnCalibrate" Grid.Column="1" Grid.Row="1" Content="{DynamicResource Calib.Btn.Calibrate}" Width="150" Height="36" Margin="8,0,0,0"
                             Click="BtnCalibrate_Click"/>
-                        <Button x:Name="BtnTestScan" Grid.Column="1" Grid.Row="3" Content="Сканировать" Width="150" Height="36"
+                    <Button x:Name="BtnTestScan" Grid.Column="1" Grid.Row="3" Content="{DynamicResource Calib.Btn.TestScan}" Width="150" Height="36"
                             Margin="8,0,0,0" Click="BtnTestScan_Click"/>
-                        <Button x:Name="BtnSave" Grid.Column="1" Grid.Row="5" Content="Сохранить" Width="150" Height="36"
+                    <Button x:Name="BtnSave" Grid.Column="1" Grid.Row="5" Content="{DynamicResource Calib.Btn.Save}" Width="150" Height="36"
                             Margin="8,0,0,0" Click="BtnSave_Click"/>
                     </Grid>
                 
@@ -82,7 +82,7 @@
         </Border>
 
         <!-- ПАНЕЛЬ НАСТРОЕК БИНАРИЗАЦИИ (две колонки, как просил) -->
-        <GroupBox Grid.Row="1" Header="Настройки бинаризации (живые)" Margin="12,8,12,0">
+        <GroupBox Grid.Row="1" Header="{DynamicResource Calib.Group.BinarizeMorph}" Margin="12,8,12,0">
             <Grid Margin="8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -94,43 +94,43 @@
 
                 <!-- Левая колонка -->
                 <StackPanel Grid.Column="0" Orientation="Vertical" Margin="12,8,12,0">
-                    <CheckBox x:Name="ChkUseAdaptive" Content="Adaptive threshold (Mean/GaussianC)" Margin="0,0,0,0" ToolTip="Адаптивное порогование: локальный порог по окну. Полезно при неравномерном освещении. Если фон ровный — можно выключить и использовать Otsu."/>
+                    <CheckBox x:Name="ChkUseAdaptive" Content="{DynamicResource Calib.AdaptiveThreshold}" Margin="0,0,0,0" ToolTip="{DynamicResource Calib.TT.AdaptiveThreshold}"/>
                     <DockPanel LastChildFill="True" Margin="0,10,0,10">
-                        <TextBlock Text="Block size (odd ≥3)" VerticalAlignment="Center" Width="180"/>
-                        <TextBox x:Name="TxtAdaptiveBlock" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="Размер окна для адаптивного порогования (только нечётный). Большое окно сглаживает тени, но может терять мелкие детали. Обычно 31–51."/>
+                        <TextBlock Text="{DynamicResource Calib.Label.BlockSize}" VerticalAlignment="Center" Width="180"/>
+                        <TextBox x:Name="TxtAdaptiveBlock" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="{DynamicResource Calib.TT.BlockSize}"/>
                     </DockPanel>
                     <DockPanel LastChildFill="True" Margin="0,0,0,10">
-                        <TextBlock Text="C" VerticalAlignment="Center" Width="180"/>
-                        <TextBox x:Name="TxtAdaptiveC" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="Смещение порога (C): выше — объект светлее (больше белого), ниже — темнее. Типично 2–7."/>
+                        <TextBlock Text="{DynamicResource Calib.Label.C}" VerticalAlignment="Center" Width="180"/>
+                        <TextBox x:Name="TxtAdaptiveC" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="{DynamicResource Calib.TT.C}"/>
                     </DockPanel>
 
-                    <CheckBox x:Name="ChkUseClahe" Content="CLAHE (локальное выравнивание)" Margin="0,10,0,10" ToolTip="Локальное выравнивание контраста. Помогает отделять светлые объекты на светлом фоне и подавлять мягкие тени."/>
+                    <CheckBox x:Name="ChkUseClahe" Content="{DynamicResource Calib.Clahe}" Margin="0,10,0,10" ToolTip="{DynamicResource Calib.TT.Clahe}"/>
                     <DockPanel LastChildFill="True">
-                        <TextBlock Text="ClipLimit" VerticalAlignment="Center" Width="180"/>
-                        <TextBox x:Name="TxtClaheClip" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="Ограничение усиления контраста в CLAHE. Больше — агрессивнее (2.0–4.0 обычно). Слишком большое может усиливать шум/блики."/>
+                        <TextBlock Text="{DynamicResource Calib.Label.ClipLimit}" VerticalAlignment="Center" Width="180"/>
+                        <TextBox x:Name="TxtClaheClip" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="{DynamicResource Calib.TT.ClipLimit}"/>
                     </DockPanel>
                     <DockPanel LastChildFill="True" Margin="0,10,0,0">
-                        <TextBlock Text="TileGrid (N x N)" VerticalAlignment="Center" Width="180"/>
-                        <TextBox x:Name="TxtClaheTiles" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="Размер сетки для CLAHE. Меньше N — более локальная коррекция. Обычно 4–8."/>
+                        <TextBlock Text="{DynamicResource Calib.Label.TileGrid}" VerticalAlignment="Center" Width="180"/>
+                        <TextBox x:Name="TxtClaheTiles" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="{DynamicResource Calib.TT.TileGrid}"/>
                     </DockPanel>
                 </StackPanel>
 
                 <!-- Правая колонка -->
                 <StackPanel Grid.Column="2" Orientation="Vertical" Margin="12,8,12,0">
                     <DockPanel LastChildFill="True">
-                        <TextBlock Text="Blur kernel (odd, 0=off)" VerticalAlignment="Center" Width="220"/>
-                        <TextBox x:Name="TxtBlurKernel" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="Гауссово размытие перед порогованием. 0 — выкл. Нечётные значения 3/5/7 сглаживают шум и тени, но могут подсъедать края."/>
+                        <TextBlock Text="{DynamicResource Calib.Label.BlurKernel}" VerticalAlignment="Center" Width="220"/>
+                        <TextBox x:Name="TxtBlurKernel" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="{DynamicResource Calib.TT.BlurKernel}"/>
                     </DockPanel>
 
-                    <CheckBox x:Name="ChkInvert" Content="Invert (объект белый)" Margin="0,10,0,10" ToolTip="Инверсия бинарного изображения. Оставляйте включённым, если алгоритм ожидает «объект = белый», а фон — чёрный."/>
+                    <CheckBox x:Name="ChkInvert" Content="{DynamicResource Calib.InvertObjectWhite}" Margin="0,10,0,10" ToolTip="{DynamicResource Calib.TT.Invert}"/>
 
                     <DockPanel LastChildFill="True">
-                        <TextBlock Text="Min area, % кадра (0..10)" VerticalAlignment="Center" Width="220"/>
-                        <TextBox x:Name="TxtMinAreaPct" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="Минимальная площадь компоненты как процент от площади кадра. Подавляет мусор/блики. Типично 1–3%."/>
+                        <TextBlock Text="{DynamicResource Calib.Label.MinAreaPct}" VerticalAlignment="Center" Width="220"/>
+                        <TextBox x:Name="TxtMinAreaPct" Height="26" MinWidth="80" Margin="6,0,0,0" ToolTip="{DynamicResource Calib.TT.MinAreaPct}"/>
                     </DockPanel>
                     <DockPanel LastChildFill="True">
 
-                        <Button x:Name="BtnSaveSettings"  Content="Сохранить настройки" Width="150" Height="36" Margin="8,10,0,0"
+                        <Button x:Name="BtnSaveSettings"  Content="{DynamicResource Calib.Btn.SaveBinarize}" Width="150" Height="36" Margin="8,10,0,0"
                             Click="BtnSaveSettings_Click"/>
                     </DockPanel>
                 </StackPanel>
@@ -156,9 +156,9 @@
 
             <!-- Статусы -->
             <TextBlock x:Name="LblTop"  Grid.Row="0" Grid.Column="0"
-                       Text="mm/px(top) не задан" FontSize="13" Foreground="#444"/>
+                       Text="{DynamicResource Calib.MmPerPxTopNotSet}" FontSize="13" Foreground="#444"/>
             <TextBlock x:Name="LblSide" Grid.Row="0" Grid.Column="2"
-                       Text="mm/px(side) не задан" FontSize="13" Foreground="#444"/>
+                       Text="{DynamicResource Calib.MmPerPxSideNotSet}" FontSize="13" Foreground="#444"/>
 
             <!-- Изображения -->
             <Border Grid.Row="2" Grid.Column="0" BorderBrush="#DDD" BorderThickness="1" CornerRadius="6" Padding="6">

@@ -224,23 +224,23 @@ namespace RoboScanner.Views
 
               
 
-                // ПАДДИНГ ТОЛЬКО ДЛЯ ДИСПЛЕЯ, НЕ ДЛЯ ИЗМЕРЕНИЯ!
-                static OpenCvSharp.Rect InflateAndClip(OpenCvSharp.Rect r, int pad, int w, int h)
-                {
-                    int x = Math.Max(0, r.X - pad);
-                    int y = Math.Max(0, r.Y - pad);
-                    int rw = Math.Min(r.Width + 2 * pad, w - x);
-                    int rh = Math.Min(r.Height + 2 * pad, h - y);
-                    return new OpenCvSharp.Rect(x, y, rw, rh);
-                }
+                //// ПАДДИНГ ТОЛЬКО ДЛЯ ДИСПЛЕЯ, НЕ ДЛЯ ИЗМЕРЕНИЯ!
+                //static OpenCvSharp.Rect InflateAndClip(OpenCvSharp.Rect r, int pad, int w, int h)
+                //{
+                //    int x = Math.Max(0, r.X - pad);
+                //    int y = Math.Max(0, r.Y - pad);
+                //    int rw = Math.Min(r.Width + 2 * pad, w - x);
+                //    int rh = Math.Min(r.Height + 2 * pad, h - y);
+                //    return new OpenCvSharp.Rect(x, y, rw, rh);
+                //}
 
                 // --- 2) Локальная функция обработки одной камеры ---
                 // --- 2) Локальная функция обработки одной камеры ---
                 // ВОЗВРАЩАЕМ roiMeasure — БЕЗ ПАДДИНГА
                 async Task<(bool ok, OpenCvSharp.Rect roiMeasure, int cols, int rows)> ProcessOneAsync(
-    string moniker,
-    System.Windows.Controls.Image imgView,
-    System.Windows.Controls.TextBlock noImgLabel)
+                        string moniker,
+                        System.Windows.Controls.Image imgView,
+                        System.Windows.Controls.TextBlock noImgLabel)
                 {
                     using var frame = await Capture.CaptureOnceAsync(moniker); // BGR
 

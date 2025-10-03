@@ -39,8 +39,16 @@
     <sys:String x:Key="Settings.Camera1">Camera 1</sys:String>
     <sys:String x:Key="Settings.Camera2">Camera 2</sys:String>
     <sys:String x:Key="Settings.Refresh">Refresh</sys:String>
+    <sys:String x:Key="Settings.Btn.Calibrate">Calibrate</sys:String>
 
     <!-- Group Setup -->
+
+    <sys:String x:Key="GroupSetup.Open">Open...</sys:String>
+    <sys:String x:Key="GroupSetup.SaveNew">Save as new...</sys:String>
+    <sys:String x:Key="GroupSetup.CurrentFilePrefix">current file:</sys:String>
+    <sys:String x:Key="GroupSetup.FileNotSelected">—</sys:String>
+    <sys:String x:Key="GroupSetup.CurrentFilePrefixFallback">current file: —</sys:String>
+
     <sys:String x:Key="GroupSetup.Title">Group Setup</sys:String>
     <sys:String x:Key="GroupSetup.Save">Save</sys:String>
     <sys:String x:Key="GroupSetup.Load">Load</sys:String>
@@ -53,6 +61,11 @@
     <sys:String x:Key="GroupSetup.Col.MaxZ">MaxZ (mm)</sys:String>
 
     <sys:String x:Key="GroupSetup.Hint">Leave MaxY/MaxZ empty if not needed. You can save and load changes.</sys:String>
+                <!-- Dialogs -->
+    <sys:String x:Key="GroupSetup.Dialog.Open.Title">Open settings file</sys:String>
+    <sys:String x:Key="GroupSetup.Dialog.SaveNew.Title">Save settings as…</sys:String>
+    <sys:String x:Key="GroupSetup.Dialog.Filter.Json">Rules files (*.json)</sys:String>
+    <sys:String x:Key="GroupSetup.Dialog.Filter.All">All files (*.*)</sys:String>
 
     <sys:String x:Key="GroupSetup.SaveOk.Title">Save</sys:String>
     <sys:String x:Key="GroupSetup.SaveOk.Body">Rules saved.</sys:String>
@@ -60,6 +73,9 @@
     <sys:String x:Key="GroupSetup.LoadOk.Body">Rules loaded.</sys:String>
     <sys:String x:Key="GroupSetup.ResetConfirm.Title">Reset</sys:String>
     <sys:String x:Key="GroupSetup.ResetConfirm.Body">Reset to 15 default groups?</sys:String>
+    <sys:String x:Key="GroupSetup.NoFileSelected.Title">No file selected</sys:String>
+    <sys:String x:Key="GroupSetup.NoFileSelected.Body">Open a file first or use “Save as new…”.</sys:String>
+
 
     <sys:String x:Key="GroupSetup.Col.Enable">Status</sys:String>
     <sys:String x:Key="GroupSetup.Col.RobotGroup">Robot group</sys:String>
@@ -170,6 +186,90 @@
     <sys:String x:Key="Group.Field.Pulse.Tooltip">
         How many seconds to keep the relay ON, then turn it OFF. Leave empty or 0 to keep it ON without auto-off.
     </sys:String>
+
+    <!-- Calibration window -->
+    <sys:String x:Key="Calib.MmPerPxTopNotSet">mm/px(top) is not set</sys:String>
+    <sys:String x:Key="Calib.MmPerPxSideNotSet">mm/px(side) is not set</sys:String>
+
+    <sys:String x:Key="Calib.TopRoiFound">TOP ROI:</sys:String>
+    <sys:String x:Key="Calib.TopRoiNotFound">TOP: ROI not found (binary shown)</sys:String>
+    <sys:String x:Key="Calib.TopNoCamera">TOP: camera not selected</sys:String>
+
+    <sys:String x:Key="Calib.SideRoiFound">SIDE ROI:</sys:String>
+    <sys:String x:Key="Calib.SideRoiNotFound">SIDE: ROI not found (binary shown)</sys:String>
+    <sys:String x:Key="Calib.SideNoCamera">SIDE: camera not selected</sys:String>
+
+    <sys:String x:Key="Calib.ErrorTitle">Calibration: error</sys:String>
+    <sys:String x:Key="Calib.ErrorScanTitle">Scan: error</sys:String>
+
+    <sys:String x:Key="Calib.NoPixelsTitle">No data</sys:String>
+    <sys:String x:Key="Calib.NoPixelsBody">Click “Calibrate” first to get ROI pixels.</sys:String>
+
+    <sys:String x:Key="Calib.EnterPositiveLW">Enter positive L/W values.</sys:String>
+    <sys:String x:Key="Calib.EnterPositiveH">Enter positive height value.</sys:String>
+
+    <sys:String x:Key="Calib.SaveOk.Title">Saved</sys:String>
+    <sys:String x:Key="Calib.SaveOk.Body">Saved. Normal scan will use new mm/px coefficients.</sys:String>
+
+    <sys:String x:Key="Calib.NoCalibrationTitle">No calibration</sys:String>
+    <sys:String x:Key="Calib.NoCalibrationBody">mm/px coefficients are not set. First “Calibrate” → “Save”.</sys:String>
+
+    <sys:String x:Key="Calib.BinarizeSaved.Title">Saved</sys:String>
+    <sys:String x:Key="Calib.BinarizeSaved.Body">Binarization settings saved.</sys:String>
+    <sys:String x:Key="Calib.BinarizeSaveError.Title">Save error</sys:String>
+
+    <sys:String x:Key="Calib.AdaptiveThreshold">Adaptive threshold (Mean/GaussianC)</sys:String>
+    <sys:String x:Key="Calib.TT.AdaptiveThreshold">Adaptive thresholding: local window. Useful with uneven light. If background is uniform, disable and use Otsu.</sys:String>
+
+    <sys:String x:Key="Calib.Label.BlockSize">Block size (odd ≥3)</sys:String>
+    <sys:String x:Key="Calib.TT.BlockSize">Window size for adaptive threshold (odd only). Large values smooth shadows but lose details. Typical 31–51.</sys:String>
+
+    <sys:String x:Key="Calib.Label.C">C</sys:String>
+    <sys:String x:Key="Calib.TT.C">Threshold offset (C): higher = lighter object (more white), lower = darker. Typical 2–7.</sys:String>
+
+    <sys:String x:Key="Calib.Clahe">CLAHE (local equalization)</sys:String>
+    <sys:String x:Key="Calib.TT.Clahe">Contrast limited adaptive histogram equalization. Helps separate light objects on light background, suppresses soft shadows.</sys:String>
+
+    <sys:String x:Key="Calib.Label.ClipLimit">ClipLimit</sys:String>
+    <sys:String x:Key="Calib.TT.ClipLimit">CLAHE contrast limit. Higher = stronger (2.0–4.0 typical). Too high may amplify noise/glare.</sys:String>
+
+    <sys:String x:Key="Calib.Label.TileGrid">TileGrid (N x N)</sys:String>
+    <sys:String x:Key="Calib.TT.TileGrid">Grid size for CLAHE. Smaller N = more local correction. Typical 4–8.</sys:String>
+
+    <sys:String x:Key="Calib.Label.BlurKernel">Blur kernel (odd, 0=off)</sys:String>
+    <sys:String x:Key="Calib.TT.BlurKernel">Gaussian blur before threshold. 0 = off. Odd 3/5/7 smooth noise/shadows but may erode edges.</sys:String>
+
+    <sys:String x:Key="Calib.InvertObjectWhite">Invert (object is white)</sys:String>
+    <sys:String x:Key="Calib.TT.Invert">Invert binary image. Keep enabled if algorithm expects object=white, background=black.</sys:String>
+
+    <sys:String x:Key="Calib.Label.MinAreaPct">Min area, % of frame (0..10)</sys:String>
+    <sys:String x:Key="Calib.TT.MinAreaPct">Minimal component area as % of frame. Filters noise/glare. Typical 1–3%.</sys:String>
+
+    <!-- EN (default) -->
+    <sys:String x:Key="Calib.Window.Title">Calibration</sys:String>
+    <sys:String x:Key="Calib.Group.PartSizeMm">Part size (mm)</sys:String>
+    <sys:String x:Key="Calib.Label.Length">Length (L):</sys:String>
+    <sys:String x:Key="Calib.Label.Width">Width (W):</sys:String>
+    <sys:String x:Key="Calib.Label.Height">Height (H):</sys:String>
+    <sys:String x:Key="Calib.Btn.Calibrate">Calibrate</sys:String>
+    <sys:String x:Key="Calib.Btn.Save">Save</sys:String>
+    <sys:String x:Key="Calib.Btn.TestScan">Test scan</sys:String>
+    <sys:String x:Key="Calib.Group.BinarizeMorph">Binarization / Morphology</sys:String>
+    <sys:String x:Key="Calib.Label.Threshold">Threshold</sys:String>
+    <sys:String x:Key="Calib.Label.StructElem">Structuring element</sys:String>
+    <sys:String x:Key="Calib.Label.Iterations">Iterations</sys:String>
+    <sys:String x:Key="Calib.AutoBinarize">Auto-binarize</sys:String>
+    <sys:String x:Key="Calib.TT.AutoBinarize">Automatically apply binarization on preview.</sys:String>
+    
+   
+    <sys:String x:Key="Calib.Btn.SaveBinarize">Save binarization</sys:String>
+    <sys:String x:Key="Calib.TopMap.WidthIsLength">Top map: width is length</sys:String>
+    <sys:String x:Key="Calib.TopMap.HeightIsLength">Top map: height is length</sys:String>
+    <sys:String x:Key="Calib.TopCamera">Top camera</sys:String>
+    <sys:String x:Key="Calib.SideCamera">Side camera</sys:String>
+    <sys:String x:Key="Calib.Preview">Preview</sys:String>
+    
+
 
 
 

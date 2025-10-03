@@ -110,7 +110,7 @@
         <Separator Margin="0,16,0,8"/>
 
 
-        <Button Content="Калибровка камер" Click="OnOpenCalibrationClick" Width="180" Height="32" />
+        <Button Content="{DynamicResource Settings.Btn.Calibrate}" Click="OnOpenCalibrationClick" Width="180" Height="32" />
 
 
 

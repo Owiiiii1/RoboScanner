@@ -7,6 +7,7 @@ using OpenCvSharp.WpfExtensions;
 using RoboScanner.Services;
 using AppSettings = RoboScanner.Properties.Settings;
 using CvRect = OpenCvSharp.Rect;
+using RoboScanner.Localization; // Loc.Get("Key")
 
 namespace RoboScanner
 {
@@ -32,8 +33,13 @@ namespace RoboScanner
             LoadBinSettingsToUi();
 
             // Показать текущие сохранённые коэффициенты (если есть)
-            LblTop.Text = (AppSettings.Default.MmPerPxTop > 0) ? $"mm/px(top)={AppSettings.Default.MmPerPxTop:0.###}" : "mm/px(top) не задан";
-            LblSide.Text = (AppSettings.Default.MmPerPxSide > 0) ? $"mm/px(side)={AppSettings.Default.MmPerPxSide:0.###}" : "mm/px(side) не задан";
+            LblTop.Text = (AppSettings.Default.MmPerPxTop > 0)
+                    ? $"mm/px(top)={AppSettings.Default.MmPerPxTop:0.###}"
+                    : Loc.Get("Calib.MmPerPxTopNotSet");
+
+            LblSide.Text = (AppSettings.Default.MmPerPxSide > 0)
+                    ? $"mm/px(side)={AppSettings.Default.MmPerPxSide:0.###}"
+                    : Loc.Get("Calib.MmPerPxSideNotSet");
 
             // В поля «итоговых размеров» (редактируемые) поставим что-нибудь осмысленное
             // Если есть «номиналы» — возьмём их как стартовые
@@ -169,17 +175,17 @@ namespace RoboScanner
                         if (errBA < errAB) _topMapping = TopMap.HeightIsLength;
                         else _topMapping = TopMap.WidthIsLength;
 
-                        LblTop.Text = $"TOP ROI: {_topPxW}×{_topPxH} px  |  map={_topMapping}";
+                        LblTop.Text = Loc.Get("Calib.TopRoiFound") + $" {_topPxW}×{_topPxH} px  |  map={_topMapping}";
                     }
                     else
                     {
                         using var dbg = new Mat();
                         Cv2.CvtColor(bin, dbg, ColorConversionCodes.GRAY2BGRA);
                         ImgTop.Source = dbg.ToWriteableBitmap();
-                        LblTop.Text = "TOP: ROI не найден (показана бинарка)";
+                        LblTop.Text = Loc.Get("Calib.TopRoiNotFound"); // "TOP: ROI not found (binary shown)"
                     }
                 }
-                else LblTop.Text = "TOP: камера не выбрана";
+                else LblTop.Text = Loc.Get("Calib.TopNoCamera");    // "TOP: camera not selected"
 
                 // -------- SIDE (высота) --------
                 _sidePxH = 0;
@@ -201,17 +207,17 @@ namespace RoboScanner
 
                         _sidePxH = roi.Height;
 
-                        LblSide.Text = $"SIDE ROI: {roi.Width}×{_sidePxH} px";
+                        LblSide.Text = Loc.Get("Calib.SideRoiFound") + $" {roi.Width}×{_sidePxH} px";
                     }
                     else
                     {
                         using var dbg = new Mat();
                         Cv2.CvtColor(bin, dbg, ColorConversionCodes.GRAY2BGRA);
                         ImgSide.Source = dbg.ToWriteableBitmap();
-                        LblSide.Text = "SIDE: ROI не найден (показана бинарка)";
+                        LblSide.Text = Loc.Get("Calib.SideRoiNotFound");
                     }
                 }
-                else LblSide.Text = "SIDE: камера не выбрана";
+                else LblSide.Text = Loc.Get("Calib.SideNoCamera");
 
                 // если пиксели получены — рассчитаем «текущие» размеры в мм и выведем их в редактируемые поля
                 if (_topPxW > 0 && _topPxH > 0 && _sidePxH > 0)
@@ -252,7 +258,7 @@ namespace RoboScanner
             catch (Exception ex)
             {
                 _log.Error("Calibration", "Calibrate failed", ex);
-                MessageBox.Show(ex.Message, "Калибровка: ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, Loc.Get("Calib.ErrorTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -268,7 +274,8 @@ namespace RoboScanner
 
                 if (_topPxW <= 0 || _topPxH <= 0 || _sidePxH <= 0)
                 {
-                    MessageBox.Show("Сначала нажмите «Калибровать», чтобы получить пиксели ROI.", "Нет данных", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(Loc.Get("Calib.NoPixelsBody"), Loc.Get("Calib.NoPixelsTitle"),
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -279,7 +286,7 @@ namespace RoboScanner
                     // W->L, H->W
                     double m1 = (Lmm > 0) ? (Lmm / _topPxW) : 0;
                     double m2 = (Wmm > 0) ? (Wmm / _topPxH) : 0;
-                    if (m1 <= 0 || m2 <= 0) throw new InvalidOperationException("Введите положительные L/W.");
+                    if (m1 <= 0 || m2 <= 0) throw new InvalidOperationException(Loc.Get("Calib.EnterPositiveLW"));
                     mmPerPxTop = 0.5 * (m1 + m2);
                 }
                 else
@@ -287,12 +294,12 @@ namespace RoboScanner
                     // H->L, W->W
                     double m1 = (Lmm > 0) ? (Lmm / _topPxH) : 0;
                     double m2 = (Wmm > 0) ? (Wmm / _topPxW) : 0;
-                    if (m1 <= 0 || m2 <= 0) throw new InvalidOperationException("Введите положительные L/W.");
+                    if (m1 <= 0 || m2 <= 0) throw new InvalidOperationException(Loc.Get("Calib.EnterPositiveLW"));
                     mmPerPxTop = 0.5 * (m1 + m2);
                 }
 
                 // mm/px SIDE из H
-                if (Hmm <= 0) throw new InvalidOperationException("Введите положительную высоту.");
+                if (Hmm <= 0) throw new InvalidOperationException(Loc.Get("Calib.EnterPositiveH"));
                 double mmPerPxSide = Hmm / _sidePxH;
 
                 AppSettings.Default.MmPerPxTop = mmPerPxTop;
@@ -308,13 +315,13 @@ namespace RoboScanner
                 LblTop.Text = $"mm/px(top)={mmPerPxTop:0.###}";
                 LblSide.Text = $"mm/px(side)={mmPerPxSide:0.###}";
 
-                MessageBox.Show("Сохранено. Теперь обычный скан использует новые коэффициенты mm/px.", "Готово",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(Loc.Get("Calib.SaveOk.Body"), Loc.Get("Calib.SaveOk.Title"),
+                        MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 _log.Error("Calibration", "Save failed", ex);
-                MessageBox.Show(ex.Message, "Сохранение: ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, "Save failed", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -327,7 +334,7 @@ namespace RoboScanner
                 double mmPerPxSide = AppSettings.Default.MmPerPxSide;
                 if (mmPerPxTop <= 0 || mmPerPxSide <= 0)
                 {
-                    MessageBox.Show("Коэффициенты mm/px не заданы. Сначала «Калибровать» → «Сохранить».", "Нет калибровки",
+                    MessageBox.Show(Loc.Get("Calib.NoCalibrationBody"), Loc.Get("Calib.NoCalibrationTitle"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
@@ -409,7 +416,8 @@ namespace RoboScanner
             catch (Exception ex)
             {
                 _log.Error("Calibration", "TestScan failed", ex);
-                MessageBox.Show(ex.Message, "Сканирование: ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, Loc.Get("Calib.ErrorScanTitle"),
+                        MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -512,12 +520,12 @@ namespace RoboScanner
 
                 AppSettings.Default.Save();
 
-                MessageBox.Show("Настройки бинаризации сохранены.", "Сохранено",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(Loc.Get("Calib.BinarizeSaved.Body"), Loc.Get("Calib.BinarizeSaved.Title"),
+                        MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Ошибка сохранения",
+                MessageBox.Show(ex.Message, Loc.Get("Calib.BinarizeSaveError.Title"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
