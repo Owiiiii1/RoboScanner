@@ -367,15 +367,22 @@ namespace RoboScanner.Views
             // --- 4) Дальнейшая логика сканирования — БЕЗ ИЗМЕНЕНИЙ ---
             try
             {
-                
-                
-                
-                
-                
-                var sim = SimulateFromActiveGroups();
-                if (sim == null)
+
+
+
+
+
+                // === Select group by actual measured dimensions (by MAX, bottom-up) ===
+                var selectedRule = RoboScanner.Services.PartGroupSelector.SelectByMax(
+                    RulesService.Instance.Rules,
+                    lengthMm,   // X
+                    widthMm,    // Y
+                    heightMm    // Z
+                );
+
+                if (selectedRule == null)
                 {
-                    _log.Warn("Scan", "No active groups to simulate scan");
+                    _log.Warn("Scan", "No valid groups (active + RobotGroup + MaxX/MaxY/MaxZ).");
                     MessageBox.Show(
                         L("Scan.Alert.NoActiveGroups.Body",
                           "There are no active groups in the settings. Specify the dimensions for at least one group."),
@@ -386,16 +393,16 @@ namespace RoboScanner.Views
                     return;
                 }
 
-                var (groupIndex, groupName, x, y, z) = sim.Value;
+                // result fields (как было у sim) — теперь из выбранного правила + реальные размеры
+                int groupIndex = selectedRule.Index;
+                string groupName = string.IsNullOrWhiteSpace(selectedRule.Name) ? $"Group {groupIndex}" : selectedRule.Name;
+                double x = lengthMm;
+                double y = widthMm;
+                double z = heightMm;
 
-                // Подставляем измеренные размеры (или нули, если не получилось)
-                x = lengthMm;   // длина (TOP.Width)
-                y = widthMm;    // ширина (TOP.Height)
-                z = heightMm;   // высота (SIDE.Height)
+                // робот-группа (nullable → int?)
+                int? robotIdx = selectedRule.RobotGroup;
 
-
-                var rule = RulesService.Instance.Rules.FirstOrDefault(r => r.Index == groupIndex);
-                var robotIdx = rule?.RobotGroup;
 
                 int mappedPulseSec = 0;
                 int startPulseSec = 0;
