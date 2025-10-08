@@ -274,5 +274,17 @@ namespace RoboScanner.Properties {
                 this["MinAreaPct"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double MmPerPxTop2 {
+            get {
+                return ((double)(this["MmPerPxTop2"]));
+            }
+            set {
+                this["MmPerPxTop2"] = value;
+            }
+        }
     }
 }

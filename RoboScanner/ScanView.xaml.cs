@@ -315,20 +315,22 @@ namespace RoboScanner.Views
                 //double mmPerPxTop = (kTop > 0 && distTopMm > 0) ? kTop * distTopMm : 0;
                 //double mmPerPxSide = (kSide > 0 && distSideMm > 0) ? kSide * distSideMm : 0;
 
-                double mmPerPxTop = AppSettings.Default.MmPerPxTop;   // мм/px для верхней камеры
+                double mmPerPxTop = AppSettings.Default.MmPerPxTop;   // мм/px для верхней камеры - ширина
                 double mmPerPxSide = AppSettings.Default.MmPerPxSide;  // мм/px для боковой
+                double mmPerPxTop2 = AppSettings.Default.MmPerPxTop2; // мм/px по оси X (длина)
+
 
                 // определяем, были ли найдены ROI (okTop/okSide у тебя получены из ProcessOneAsync)
                 roiTopFound = okTop;
                 roiSideFound = okSide;
-                calibTopOk = (mmPerPxTop > 0);
+                calibTopOk = (mmPerPxTop > 0 && mmPerPxTop2 > 0);
                 calibSideOk = (mmPerPxSide > 0);
 
                 // TOP -> длина/ширина (или 0)
                 if (roiTopFound && calibTopOk)
                 {
-                    lengthMm = roiTop.Width * mmPerPxTop;
-                    widthMm = roiTop.Height * mmPerPxTop;
+                    lengthMm = roiTop.Width * mmPerPxTop2;  // длина по оси X
+                    widthMm = roiTop.Height * mmPerPxTop;   // ширина по оси Y
                 }
                 else
                 {
@@ -338,9 +340,23 @@ namespace RoboScanner.Views
                     else _log.Warn("Scan.TOP", "Calibration missing → set Length/Width = 0 (KTop or TopDistanceMm <= 0)");
                 }
 
+                
                 // SIDE -> высота (или 0)
                 if (roiSideFound && calibSideOk)
                 {
+                    // === DIAG: raw vs inflated height on SIDE ===
+                    const int pad = 12; // тот же, что в ProcessOneAsync для предпросмотра
+                    int xi = Math.Max(0, roiSide.X - pad);
+                    int yi = Math.Max(0, roiSide.Y - pad);
+                    int hi = Math.Min(roiSide.Height + 2 * pad, hSide - yi); // inflated H
+
+                    _log.Info(
+                        "Scan.SIDE",
+                        $"frame={wSide}x{hSide}, roi=({roiSide.X},{roiSide.Y},{roiSide.Width},{roiSide.Height}), " +
+                        $"roiInflH={hi}, pad={pad}, mmPerPx={mmPerPxSide:0.####}, " +
+                        $"H_raw={roiSide.Height * mmPerPxSide:0.##}, H_infl={hi * mmPerPxSide:0.##}"
+                    );
+
                     heightMm = roiSide.Height * mmPerPxSide;
                 }
                 else

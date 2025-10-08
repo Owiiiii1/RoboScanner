@@ -225,24 +225,17 @@ namespace RoboScanner
                     // если уже есть сохранённые мм/px — покажем размеры по ним,
                     // иначе возьмём стартовые из «номиналов», чтобы пользователь видел числа и мог подправить
                     double mmPerPxTop = AppSettings.Default.MmPerPxTop;
+                    double mmPerPxTop2 = AppSettings.Default.MmPerPxTop2;
                     double mmPerPxSide = AppSettings.Default.MmPerPxSide;
 
                     double calcL, calcW, calcH;
 
-                    if (mmPerPxTop > 0 && mmPerPxSide > 0)
+                    if (mmPerPxTop > 0 && mmPerPxTop2 > 0 && mmPerPxSide > 0)
                     {
-                        // размеры по текущей калибровке
-                        if (_topMapping == TopMap.WidthIsLength)
-                        {
-                            calcL = _topPxW * mmPerPxTop;
+                        
+                            calcL = _topPxW * mmPerPxTop2;
                             calcW = _topPxH * mmPerPxTop;
-                        }
-                        else
-                        {
-                            calcL = _topPxH * mmPerPxTop;
-                            calcW = _topPxW * mmPerPxTop;
-                        }
-                        calcH = _sidePxH * mmPerPxSide;
+                            calcH = _sidePxH * mmPerPxSide;
                     }
                     else
                     {
@@ -280,29 +273,22 @@ namespace RoboScanner
                 }
 
                 // mm/px TOP из отредактированных размеров
-                double mmPerPxTop;
-                if (_topMapping == TopMap.WidthIsLength)
-                {
-                    // W->L, H->W
-                    double m1 = (Lmm > 0) ? (Lmm / _topPxW) : 0;
-                    double m2 = (Wmm > 0) ? (Wmm / _topPxH) : 0;
-                    if (m1 <= 0 || m2 <= 0) throw new InvalidOperationException(Loc.Get("Calib.EnterPositiveLW"));
-                    mmPerPxTop = 0.5 * (m1 + m2);
-                }
-                else
-                {
-                    // H->L, W->W
-                    double m1 = (Lmm > 0) ? (Lmm / _topPxH) : 0;
-                    double m2 = (Wmm > 0) ? (Wmm / _topPxW) : 0;
-                    if (m1 <= 0 || m2 <= 0) throw new InvalidOperationException(Loc.Get("Calib.EnterPositiveLW"));
-                    mmPerPxTop = 0.5 * (m1 + m2);
-                }
+                // mm/px TOP из отредактированных размеров
+                // mm/px TOP раздельно по осям: длина=Y, ширина=X
+                double mmPerPxTop2 = (Lmm > 0) ? (Lmm / _topPxW) : 0; // kX из длины
+                double mmPerPxTop = (Wmm > 0) ? (Wmm / _topPxH) : 0; // kY из ширины
+
+                if (mmPerPxTop <= 0 || mmPerPxTop2 <= 0)
+                    throw new InvalidOperationException(Loc.Get("Calib.EnterPositiveLW"));
+
+
 
                 // mm/px SIDE из H
                 if (Hmm <= 0) throw new InvalidOperationException(Loc.Get("Calib.EnterPositiveH"));
                 double mmPerPxSide = Hmm / _sidePxH;
 
                 AppSettings.Default.MmPerPxTop = mmPerPxTop;
+                AppSettings.Default.MmPerPxTop2 = mmPerPxTop2;
                 AppSettings.Default.MmPerPxSide = mmPerPxSide;
 
                 // заодно сохраним «номиналы» как подсказки для следующей сессии
@@ -332,7 +318,9 @@ namespace RoboScanner
             {
                 double mmPerPxTop = AppSettings.Default.MmPerPxTop;
                 double mmPerPxSide = AppSettings.Default.MmPerPxSide;
-                if (mmPerPxTop <= 0 || mmPerPxSide <= 0)
+                double mmPerPxTop2 = AppSettings.Default.MmPerPxTop2;
+
+                if (mmPerPxTop <= 0 || mmPerPxTop2 <= 0 || mmPerPxSide <= 0)
                 {
                     MessageBox.Show(Loc.Get("Calib.NoCalibrationBody"), Loc.Get("Calib.NoCalibrationTitle"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -375,16 +363,9 @@ namespace RoboScanner
                             ImgTop.Source = bgra.ToWriteableBitmap();
                         }
 
-                        if (_topMapping == TopMap.WidthIsLength)
-                        {
-                            L = roi.Width * mmPerPxTop;
-                            W = roi.Height * mmPerPxTop;
-                        }
-                        else
-                        {
-                            L = roi.Height * mmPerPxTop;
-                            W = roi.Width * mmPerPxTop;
-                        }
+                        // фиксировано: длина=Y, ширина=X
+                        L = roi.Width * mmPerPxTop2; // X
+                        W = roi.Height * mmPerPxTop;  // Y
                     }
                 }
 
@@ -404,6 +385,13 @@ namespace RoboScanner
                             Cv2.CvtColor(crop, bgra, ColorConversionCodes.BGR2BGRA);
                             ImgSide.Source = bgra.ToWriteableBitmap();
                         }
+
+                        // === DIAG: raw vs inflated height on SIDE (Calibration Test) ===
+                        _log.Info(
+                            "Calib.SIDE",
+                            $"frame={frame.Cols}x{frame.Rows}, roiH_raw={roi.Height}, roiH_infl={disp.Height}, " +
+                            $"mmPerPx={mmPerPxSide:0.####}, H_raw={roi.Height * mmPerPxSide:0.##}, H_infl={disp.Height * mmPerPxSide:0.##}"
+                        );
                         H = roi.Height * mmPerPxSide;
                     }
                 }
