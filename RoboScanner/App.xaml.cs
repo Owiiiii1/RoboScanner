@@ -14,6 +14,9 @@ namespace RoboScanner
         {
             base.OnStartup(e);
 
+            // Стартуем опрос лазеров сразу при запуске приложения
+            LaserService.Instance.Start();
+
             _ = ScanHistoryService.Instance; // форсируем загрузку истории с диска
 
             // читаем сохранённый язык или авто-выбор

@@ -23,47 +23,6 @@ namespace RoboScanner.Views
         private readonly GroupsService _groups = GroupsService.Instance;
         private readonly LogService _log = LogService.Instance;
         private CaptureManager Capture => CaptureManager.Instance;
-
-        // Собрать опции бинаризации из Сохранённых настроек (AppSettings)
-        private BinarizationService.Options BuildBinOptionsFromSettings()
-        {
-            // нормализация, как в калибровке
-            int block = AppSettings.Default.AdaptiveBlockSize;
-            if (block < 3) block = 3;
-            if ((block & 1) == 0) block += 1;
-
-            int blur = AppSettings.Default.BlurKernel;
-            if (blur < 0) blur = 0;
-            if (blur != 0 && (blur & 1) == 0) blur += 1;
-
-            int tiles = Math.Max(1, AppSettings.Default.ClaheTileGrid);
-            double clip = AppSettings.Default.ClaheClipLimit > 0 ? AppSettings.Default.ClaheClipLimit : 3.5;
-
-            return new BinarizationService.Options
-            {
-                UseAdaptive = AppSettings.Default.UseAdaptive,
-                AdaptiveBlockSize = block,
-                AdaptiveC = AppSettings.Default.AdaptiveC,
-                UseClahe = AppSettings.Default.UseClahe,
-                ClaheClipLimit = clip,
-                ClaheTileGrid = new OpenCvSharp.Size(tiles, tiles),
-                BlurKernel = blur,
-                Invert = AppSettings.Default.Invert,
-                KeepSingleObject = false // мы ищем ROI, изображение не трогаем
-            };
-        }
-
-        // Перевод процента площади из настроек в пиксели
-        private int ComputeMinAreaPxFromSettings(int cols, int rows)
-        {
-            double pct = Math.Max(0, AppSettings.Default.MinAreaPct); // % кадра
-            int area = Math.Max(1, cols * rows);
-            int fromPct = (int)Math.Round(area * (pct / 100.0));
-            return Math.Max(500, fromPct); // предохранитель, как в калибровке
-        }
-
-
-
         private bool _isScanInProgress;
 
         private string L(string key, string fallback) =>
@@ -198,196 +157,78 @@ namespace RoboScanner.Views
             _app.OpState = OperationState.Scanning;
             UpdateButtons();
 
-            // Будем сюда складывать миллиметры; по умолчанию 0
-            double lengthMm = 0;  // TOP.Width  -> X
-            double widthMm = 0;  // TOP.Height -> Y
-            double heightMm = 0;  // SIDE.Height-> Z
-
-            // Флаги диагностики
-            bool roiTopFound = false;
-            bool roiSideFound = false;
-            bool calibTopOk = false;
-            bool calibSideOk = false;
-
+            // Итоговые размеры детали в мм (X/Y/Z)
+            double lengthMm = 0;  // X
+            double widthMm = 0;  // Y
+            double heightMm = 0;  // Z
 
             try
             {
                 // --- 1) Выбор камер по сохранённым Moniker ---
                 var all = CameraDiscoveryService.Instance.ListVideoDevices();
                 var saved1 = AppSettings.Default.Camera1Id;
-                var saved2 = AppSettings.Default.Camera2Id;
 
                 string? cam1 = CameraDiscoveryService.Instance.FindByMoniker(all, saved1)?.Moniker
                                ?? all.ElementAtOrDefault(0)?.Moniker;
-                string? cam2 = CameraDiscoveryService.Instance.FindByMoniker(all, saved2)?.Moniker
-                               ?? all.ElementAtOrDefault(1)?.Moniker;
+                
 
-              
-
-                //// ПАДДИНГ ТОЛЬКО ДЛЯ ДИСПЛЕЯ, НЕ ДЛЯ ИЗМЕРЕНИЯ!
-                //static OpenCvSharp.Rect InflateAndClip(OpenCvSharp.Rect r, int pad, int w, int h)
-                //{
-                //    int x = Math.Max(0, r.X - pad);
-                //    int y = Math.Max(0, r.Y - pad);
-                //    int rw = Math.Min(r.Width + 2 * pad, w - x);
-                //    int rh = Math.Min(r.Height + 2 * pad, h - y);
-                //    return new OpenCvSharp.Rect(x, y, rw, rh);
-                //}
-
-                // --- 2) Локальная функция обработки одной камеры ---
-                // --- 2) Локальная функция обработки одной камеры ---
-                // ВОЗВРАЩАЕМ roiMeasure — БЕЗ ПАДДИНГА
-                async Task<(bool ok, OpenCvSharp.Rect roiMeasure, int cols, int rows)> ProcessOneAsync(
-                        string moniker,
-                        System.Windows.Controls.Image imgView,
-                        System.Windows.Controls.TextBlock noImgLabel)
+                // Локальная функция: просто снять кадр и показать его в Image
+                async Task CaptureAndShowAsync(string moniker, Image imgView, TextBlock noImgLabel)
                 {
                     using var frame = await Capture.CaptureOnceAsync(moniker); // BGR
-
-                    var binOpt = BuildBinOptionsFromSettings();               // <<<<<<
-                    using var bin = BinarizationService.Instance.Binarize(frame, binOpt);
-
-                    int minAreaPx = ComputeMinAreaPxFromSettings(frame.Cols, frame.Rows); // <<<<<<
-
-                    if (BinarizationService.Instance.TryGetLargestObjectRoi(bin, out var roi, minAreaPx)) // <<<<<<
-                    {
-                        // Показ – с паддингом (только для UI)
-                        const int pad = 12;
-                        int x = Math.Max(0, roi.X - pad);
-                        int y = Math.Max(0, roi.Y - pad);
-                        int w = Math.Min(roi.Width + 2 * pad, frame.Cols - x);
-                        int h = Math.Min(roi.Height + 2 * pad, frame.Rows - y);
-
-                        using (var crop = new Mat(frame, new OpenCvSharp.Rect(x, y, w, h)))
-                        using (var bgra = new Mat())
-                        {
-                            Cv2.CvtColor(crop, bgra, ColorConversionCodes.BGR2BGRA);
-                            imgView.Source = bgra.ToWriteableBitmap();
-                            noImgLabel.Visibility = Visibility.Collapsed;
-                        }
-
-                        return (true, roi, frame.Cols, frame.Rows); // измерения — из НЕрасширенного roi
-                    }
-                    else
-                    {
-                        using var dbg = new Mat();
-                        Cv2.CvtColor(bin, dbg, ColorConversionCodes.GRAY2BGRA);
-                        imgView.Source = dbg.ToWriteableBitmap();
-                        noImgLabel.Visibility = Visibility.Collapsed;
-                        return (false, default, frame.Cols, frame.Rows);
-                    }
+                    using var bgra = new Mat();
+                    Cv2.CvtColor(frame, bgra, ColorConversionCodes.BGR2BGRA);
+                    imgView.Source = bgra.ToWriteableBitmap();
+                    noImgLabel.Visibility = Visibility.Collapsed;
                 }
 
+                // --- 2) Две фотки с камер (без математики) ---
 
-
-                // --- 3) Обработка обеих камер ---
-                (bool okTop, CvRect roiTop, int wTop, int hTop) = (false, default, 0, 0);
-                (bool okSide, CvRect roiSide, int wSide, int hSide) = (false, default, 0, 0);
-
-                // Камера 1 — считаем TOP (длина/ширина)
+                // Камера 1 → левое окно
                 if (cam1 != null)
                 {
-                    (okTop, roiTop, wTop, hTop) = await ProcessOneAsync(cam1, ImgCam1, LblNoImg1);
+                    await CaptureAndShowAsync(cam1, ImgCam1, LblNoImg1);
                 }
                 else
                 {
-                    ImgCam1.Source = null; LblNoImg1.Visibility = Visibility.Visible;
+                    ImgCam1.Source = null;
+                    LblNoImg1.Visibility = Visibility.Visible;
                     _log.Warn("Camera", "Camera1 is not selected or not found");
                 }
 
-                // Камера 2 — считаем SIDE (высота)
-                if (cam2 != null)
+                // --- 3) Читаем размеры с лазеров ---
+
+                // Предполагаем, что уже есть LaserService с методом GetAxesWithOffset():
+                // X = длина, Y = ширина, Z = высота, с учётом ручных оффсетов из настроек.
+                var (xOpt, yOpt, zOpt) = LaserService.Instance.GetAxesWithOffset();
+
+                lengthMm = xOpt ?? 0;
+                widthMm = yOpt ?? 0;
+                heightMm = zOpt ?? 0;
+
+                if (!xOpt.HasValue || !yOpt.HasValue || !zOpt.HasValue)
                 {
-                    (okSide, roiSide, wSide, hSide) = await ProcessOneAsync(cam2, ImgCam2, LblNoImg2);
-                }
-                else
-                {
-                    ImgCam2.Source = null; LblNoImg2.Visibility = Visibility.Visible;
-                    _log.Warn("Camera", "Camera2 is not selected or not found");
-                }
-
-                // === Пересчёт px -> мм по калибровке (0, если что-то не так) ===
-                //double kTop = AppSettings.Default.KTop;
-                //double kSide = AppSettings.Default.KSide;
-                //double distTopMm = AppSettings.Default.TopDistanceMm;
-                //double distSideMm = AppSettings.Default.SideDistanceMm;
-
-                //double mmPerPxTop = (kTop > 0 && distTopMm > 0) ? kTop * distTopMm : 0;
-                //double mmPerPxSide = (kSide > 0 && distSideMm > 0) ? kSide * distSideMm : 0;
-
-                double mmPerPxTop = AppSettings.Default.MmPerPxTop;   // мм/px для верхней камеры - ширина
-                double mmPerPxSide = AppSettings.Default.MmPerPxSide;  // мм/px для боковой
-                double mmPerPxTop2 = AppSettings.Default.MmPerPxTop2; // мм/px по оси X (длина)
-
-
-                // определяем, были ли найдены ROI (okTop/okSide у тебя получены из ProcessOneAsync)
-                roiTopFound = okTop;
-                roiSideFound = okSide;
-                calibTopOk = (mmPerPxTop > 0 && mmPerPxTop2 > 0);
-                calibSideOk = (mmPerPxSide > 0);
-
-                // TOP -> длина/ширина (или 0)
-                if (roiTopFound && calibTopOk)
-                {
-                    lengthMm = roiTop.Width * mmPerPxTop2;  // длина по оси X
-                    widthMm = roiTop.Height * mmPerPxTop;   // ширина по оси Y
-                }
-                else
-                {
-                    lengthMm = 0;
-                    widthMm = 0;
-                    if (!roiTopFound) _log.Warn("Scan.TOP", "ROI not found → set Length/Width = 0");
-                    else _log.Warn("Scan.TOP", "Calibration missing → set Length/Width = 0 (KTop or TopDistanceMm <= 0)");
-                }
-
-                
-                // SIDE -> высота (или 0)
-                if (roiSideFound && calibSideOk)
-                {
-                    // === DIAG: raw vs inflated height on SIDE ===
-                    const int pad = 12; // тот же, что в ProcessOneAsync для предпросмотра
-                    int xi = Math.Max(0, roiSide.X - pad);
-                    int yi = Math.Max(0, roiSide.Y - pad);
-                    int hi = Math.Min(roiSide.Height + 2 * pad, hSide - yi); // inflated H
-
-                    _log.Info(
-                        "Scan.SIDE",
-                        $"frame={wSide}x{hSide}, roi=({roiSide.X},{roiSide.Y},{roiSide.Width},{roiSide.Height}), " +
-                        $"roiInflH={hi}, pad={pad}, mmPerPx={mmPerPxSide:0.####}, " +
-                        $"H_raw={roiSide.Height * mmPerPxSide:0.##}, H_infl={hi * mmPerPxSide:0.##}"
+                    _log.Warn(
+                        "Laser",
+                        $"Laser measures incomplete: X={xOpt?.ToString() ?? "null"}, Y={yOpt?.ToString() ?? "null"}, Z={zOpt?.ToString() ?? "null"}"
                     );
-
-                    heightMm = roiSide.Height * mmPerPxSide;
-                }
-                else
-                {
-                    heightMm = 0;
-                    if (!roiSideFound) _log.Warn("Scan.SIDE", "ROI not found → set Height = 0");
-                    else _log.Warn("Scan.SIDE", "Calibration missing → set Height = 0 (KSide or SideDistanceMm <= 0)");
                 }
 
-
+                _log.Info("Laser",
+                    $"Measured part size (with offsets): X={lengthMm:0.##}mm, Y={widthMm:0.##}mm, Z={heightMm:0.##}mm");
             }
             catch (Exception ex)
             {
-                // Любая ошибка на этапе камер/ROI
-                _log.Error("Camera", "Capture/ROI failed", ex);
+                // Любая ошибка на этапе камер/лазеров
+                _log.Error("Scan", "Capture/laser failed", ex);
                 ImgCam1.Source = null; LblNoImg1.Visibility = Visibility.Visible;
-                ImgCam2.Source = null; LblNoImg2.Visibility = Visibility.Visible;
+
+                lengthMm = widthMm = heightMm = 0;
             }
 
-            
-            
-            
-            
             // --- 4) Дальнейшая логика сканирования — БЕЗ ИЗМЕНЕНИЙ ---
             try
             {
-
-
-
-
-
                 // === Select group by actual measured dimensions (by MAX, bottom-up) ===
                 var selectedRule = RoboScanner.Services.PartGroupSelector.SelectByMax(
                     RulesService.Instance.Rules,
@@ -409,7 +250,7 @@ namespace RoboScanner.Views
                     return;
                 }
 
-                // result fields (как было у sim) — теперь из выбранного правила + реальные размеры
+                // result fields — теперь уже с лазерными размерами
                 int groupIndex = selectedRule.Index;
                 string groupName = string.IsNullOrWhiteSpace(selectedRule.Name) ? $"Group {groupIndex}" : selectedRule.Name;
                 double x = lengthMm;
@@ -418,7 +259,6 @@ namespace RoboScanner.Views
 
                 // робот-группа (nullable → int?)
                 int? robotIdx = selectedRule.RobotGroup;
-
 
                 int mappedPulseSec = 0;
                 int startPulseSec = 0;
@@ -546,6 +386,7 @@ namespace RoboScanner.Views
 
 
 
+
         /// <summary>
         /// Picks a random ACTIVE group and generates X/Y/Z:
         /// for each axis: [Max/2 .. Max]; if Max is null → [0 .. 100].
@@ -583,15 +424,8 @@ namespace RoboScanner.Views
 
         private void ShowPlaceholders(bool force = false)
         {
-            // если уже есть фото — не трогаем (если явно не попросили)
-            //if (!force && (ImgCam1.Source != null || ImgCam2.Source != null))
-            //    return;
-
-            //ImgCam1.Source = MakePlaceholder(800, 600, Colors.LightSteelBlue);
-            //ImgCam2.Source = MakePlaceholder(800, 600, Colors.LightSkyBlue);
-            //LblNoImg1.Visibility = Visibility.Collapsed;
-            //LblNoImg2.Visibility = Visibility.Collapsed;
-            foreach (var img in new[] { ImgCam1, ImgCam2 })
+            
+            foreach (var img in new[] { ImgCam1})
             {
                 if (force || img.Source == null)
                 {

@@ -30,15 +30,14 @@
         <!-- ПОЛОСА РЕЗУЛЬТАТОВ (единая строка) -->
         <Border Grid.Row="2" Padding="10" CornerRadius="8"
             BorderBrush="#E5E7EB" BorderThickness="1" Background="#FBFBFB" Margin="0,0,0,12">
-            <TextBlock x:Name="TxtResultLine" FontSize="14" />
+            <TextBlock x:Name="TxtResultLine" FontSize="25" />
         </Border>
 
         <!-- ДВЕ ФОТОГРАФИИ -->
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="12"/>
-                <ColumnDefinition Width="*"/>
+                
             </Grid.ColumnDefinitions>
 
             <!-- Камера 1 -->
@@ -57,21 +56,7 @@
                 </Grid>
             </Border>
 
-            <!-- Камера 2 -->
-            <Border Grid.Column="2" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="10" Padding="8">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="{DynamicResource Scan.Photo.Cam2}" Foreground="#6B7280" Margin="0,0,0,6"/>
-                    <Grid Grid.Row="1">
-                        <Image x:Name="ImgCam2" Stretch="Uniform" VerticalAlignment="Stretch"/>
-                        <TextBlock x:Name="LblNoImg2" Text="{DynamicResource Scan.Photo.NoImage}"
-                       Foreground="#9CA3AF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Grid>
-                </Grid>
-            </Border>
+            
         </Grid>
     </Grid>
 </UserControl>

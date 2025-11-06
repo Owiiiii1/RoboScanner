@@ -60,16 +60,7 @@
                         Margin="400,0,0,8"
                         DisplayMemberPath="Display"
                         SelectedValuePath="Moniker">
-                <!--<ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Name}"/>
-                            <TextBlock Text=" (" Margin="6,0,0,0"/>
-                            <TextBlock Text="{Binding PortInfo, TargetNullValue=unknown}"/>
-                            <TextBlock Text=")"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate> -->
+                
                 <ComboBox.ItemContainerStyle>
                     <Style TargetType="ComboBoxItem">
                         <Setter Property="ToolTip" Value="{Binding Moniker}"/>
@@ -77,45 +68,131 @@
                 </ComboBox.ItemContainerStyle>
             </ComboBox>
 
-            <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource Settings.Camera2}" VerticalAlignment="Center"/>
-            <ComboBox x:Name="CbCamera2"
-                        Grid.Row="2"
-                        Grid.Column="2"
-                        Grid.ColumnSpan="2"
-                        MinWidth="280"
-                        Margin="400,0,0,8"
-                        DisplayMemberPath="Display"
-                        SelectedValuePath="Moniker">
-                <!--<ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Name}"/>
-                            <TextBlock Text=" (" Margin="6,0,0,0"/>
-                            <TextBlock Text="{Binding PortInfo, TargetNullValue=unknown}"/>
-                            <TextBlock Text=")"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>-->
-                <ComboBox.ItemContainerStyle>
-                    <Style TargetType="ComboBoxItem">
-                        <Setter Property="ToolTip" Value="{Binding Moniker}"/>
-                    </Style>
-                </ComboBox.ItemContainerStyle>
-            </ComboBox>
         </Grid>
-        <!-- опционально: кнопка обновить -->
-            <Button Content="{DynamicResource Settings.Refresh}" Click="RefreshCameras_Click"
-            HorizontalAlignment="Right" />
+        
 
+        <!-- ЛАЗЕРНЫЕ ДАТЧИКИ -->
         <Separator Margin="0,16,0,8"/>
 
+        <TextBlock Text="Лазерные датчики" FontWeight="Bold" FontSize="14" Margin="0,0,0,8"/>
 
-        <Button Content="{DynamicResource Settings.Btn.Calibrate}" Click="OnOpenCalibrationClick" Width="180" Height="32" />
+        <!-- Общие параметры -->
+        <StackPanel Orientation="Horizontal" Margin="12,0,0,8">
+            <TextBlock Text="IP мастера:" VerticalAlignment="Center" Width="100"/>
+            <TextBox x:Name="TbLaserIp" Width="130" />
+
+            <TextBlock Text="Период опроса, мс:" VerticalAlignment="Center" Margin="16,0,0,0"/>
+            <TextBox x:Name="TbLaserPollMs" Width="60"/>
+
+            <Button Content="Перезапустить опрос"
+                    Margin="16,0,0,0"
+                    Click="OnLaserRestartClick"
+                    Padding="8,2"/>
+
+            
+        </StackPanel>
+
+        <!-- Физические датчики -->
+        <Grid Margin="12,0,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <!-- Датчик -->
+                <ColumnDefinition Width="80"/>
+                <!-- Instance -->
+                <ColumnDefinition Width="80"/>
+                <!-- Offset -->
+                <ColumnDefinition Width="120"/>
+                <!-- Измерение -->
+                <ColumnDefinition Width="120"/>
+                <!-- Ось -->
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Заголовки -->
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Датчик" FontWeight="Bold"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="Instance" FontWeight="Bold"/>
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="Offset" FontWeight="Bold"/>
+            <TextBlock Grid.Row="0" Grid.Column="3" Text="Измерение, мм" FontWeight="Bold"/>
+            <TextBlock Grid.Row="0" Grid.Column="4" Text="Ось" FontWeight="Bold"/>
+
+            <!-- Датчик 1 -->
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="1"/>
+            <TextBox   Grid.Row="1" Grid.Column="1" x:Name="TbLaser1Inst" Width="60" />
+            <TextBox   Grid.Row="1" Grid.Column="2" x:Name="TbLaser1Offset" Width="60" />
+            <TextBlock Grid.Row="1" Grid.Column="3" x:Name="LblLaser1Value" />
+            <ComboBox  Grid.Row="1" Grid.Column="4" x:Name="CbLaser1Axis" Width="100">
+            <ComboBoxItem Tag="0" Content="—" />
+            <ComboBoxItem Tag="1" Content="X" />
+            <ComboBoxItem Tag="2" Content="Y" />
+            <ComboBoxItem Tag="3" Content="Z" />
+            </ComboBox>
+
+            <!-- Датчик 2 -->
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="2"/>
+            <TextBox   Grid.Row="2" Grid.Column="1" x:Name="TbLaser2Inst" Width="60" />
+            <TextBox   Grid.Row="2" Grid.Column="2" x:Name="TbLaser2Offset" Width="60" />
+            <TextBlock Grid.Row="2" Grid.Column="3" x:Name="LblLaser2Value" />
+            <ComboBox  Grid.Row="2" Grid.Column="4" x:Name="CbLaser2Axis" Width="100">
+            <ComboBoxItem Tag="0" Content="—" />
+            <ComboBoxItem Tag="1" Content="X" />
+            <ComboBoxItem Tag="2" Content="Y" />
+            <ComboBoxItem Tag="3" Content="Z" />
+            </ComboBox>
+
+            <!-- Датчик 3 -->
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="3"/>
+            <TextBox   Grid.Row="3" Grid.Column="1" x:Name="TbLaser3Inst" Width="60" />
+            <TextBox   Grid.Row="3" Grid.Column="2" x:Name="TbLaser3Offset" Width="60" />
+            <TextBlock Grid.Row="3" Grid.Column="3" x:Name="LblLaser3Value" />
+            <ComboBox  Grid.Row="3" Grid.Column="4" x:Name="CbLaser3Axis" Width="100">
+            <ComboBoxItem Tag="0" Content="—" />
+            <ComboBoxItem Tag="1" Content="X" />
+            <ComboBoxItem Tag="2" Content="Y" />
+            <ComboBoxItem Tag="3" Content="Z" />
+            </ComboBox>
+        </Grid>
+
+        <!-- Ручные оффсеты по осям -->
+        <StackPanel Orientation="Horizontal" Margin="12,8,0,0">
+            <TextBlock Text="Смещение по X, мм:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBox x:Name="TbAxisXOffset" Width="60"/>
+
+            <TextBlock Text="Смещение по Y, мм:" VerticalAlignment="Center" Margin="16,0,8,0"/>
+            <TextBox x:Name="TbAxisYOffset" Width="60"/>
+
+            <TextBlock Text="Смещение по Z, мм:" VerticalAlignment="Center" Margin="16,0,8,0"/>
+            <TextBox x:Name="TbAxisZOffset" Width="60"/>
+        </StackPanel>
 
 
+        <!-- Результат измерения -->
+        <GroupBox Header="Результат измерения" Margin="0,8,0,0">
+            <Grid Margin="6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
+                <TextBlock Text="X:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock x:Name="LblAxisXResult" Grid.Row="0" Grid.Column="1" FontWeight="Bold" />
 
+                <TextBlock Text="Y:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,4,8,0"/>
+                <TextBlock x:Name="LblAxisYResult" Grid.Row="1" Grid.Column="1" FontWeight="Bold" />
 
+                <TextBlock Text="Z:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="0,4,8,0"/>
+                <TextBlock x:Name="LblAxisZResult" Grid.Row="2" Grid.Column="1" FontWeight="Bold" />
+            </Grid>
+        </GroupBox>
 
 
 

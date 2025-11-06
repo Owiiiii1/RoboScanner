@@ -286,5 +286,173 @@ namespace RoboScanner.Properties {
                 this["MmPerPxTop2"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("192.168.1.250")]
+        public string LaserHost {
+            get {
+                return ((string)(this["LaserHost"]));
+            }
+            set {
+                this["LaserHost"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int LaserPollMs {
+            get {
+                return ((int)(this["LaserPollMs"]));
+            }
+            set {
+                this["LaserPollMs"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int LaserSensor1Inst {
+            get {
+                return ((int)(this["LaserSensor1Inst"]));
+            }
+            set {
+                this["LaserSensor1Inst"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("101")]
+        public int LaserSensor2Inst {
+            get {
+                return ((int)(this["LaserSensor2Inst"]));
+            }
+            set {
+                this["LaserSensor2Inst"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("102")]
+        public int LaserSensor3Inst {
+            get {
+                return ((int)(this["LaserSensor3Inst"]));
+            }
+            set {
+                this["LaserSensor3Inst"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int LaserAxisXSensor {
+            get {
+                return ((int)(this["LaserAxisXSensor"]));
+            }
+            set {
+                this["LaserAxisXSensor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public int LaserAxisYSensor {
+            get {
+                return ((int)(this["LaserAxisYSensor"]));
+            }
+            set {
+                this["LaserAxisYSensor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        public int LaserAxisZSensor {
+            get {
+                return ((int)(this["LaserAxisZSensor"]));
+            }
+            set {
+                this["LaserAxisZSensor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double LaserAxisXOffsetMm {
+            get {
+                return ((double)(this["LaserAxisXOffsetMm"]));
+            }
+            set {
+                this["LaserAxisXOffsetMm"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double LaserAxisYOffsetMm {
+            get {
+                return ((double)(this["LaserAxisYOffsetMm"]));
+            }
+            set {
+                this["LaserAxisYOffsetMm"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double LaserAxisZOffsetMm {
+            get {
+                return ((double)(this["LaserAxisZOffsetMm"]));
+            }
+            set {
+                this["LaserAxisZOffsetMm"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("118")]
+        public int LaserSensor1Offset {
+            get {
+                return ((int)(this["LaserSensor1Offset"]));
+            }
+            set {
+                this["LaserSensor1Offset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("150")]
+        public int LaserSensor2Offset {
+            get {
+                return ((int)(this["LaserSensor2Offset"]));
+            }
+            set {
+                this["LaserSensor2Offset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int LaserSensor3Offset {
+            get {
+                return ((int)(this["LaserSensor3Offset"]));
+            }
+            set {
+                this["LaserSensor3Offset"] = value;
+            }
+        }
     }
 }
