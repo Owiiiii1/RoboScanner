@@ -157,6 +157,20 @@ namespace RoboScanner.Views
             _app.OpState = OperationState.Scanning;
             UpdateButtons();
 
+            // --- Сбрасываем усреднение лазера и ждём, пока наберутся свежие данные ---
+            LaserService.Instance.ResetAveraging();
+
+            // берём период опроса из настроек
+            int pollMs = AppSettings.Default.LaserPollMs;
+            if (pollMs < 50) pollMs = 50;
+
+            // ждём, пока LaserService успеет собрать новое окно усреднения
+            // (SmoothWindow = 10 → примерно 10 * 100 мс = 1 сек)
+            for (int i = 0; i < 10; i++)
+            {
+                await Task.Delay(pollMs);
+            }
+
             // Итоговые размеры детали в мм (X/Y/Z)
             double lengthMm = 0;  // X
             double widthMm = 0;  // Y

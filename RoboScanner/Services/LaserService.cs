@@ -21,6 +21,12 @@ namespace RoboScanner.Services
         private readonly object _sync = new();
         private readonly double?[] _rawMm = new double?[3]; // сырое значение каждого датчика (мм)
 
+        // Скользящее среднее по 10 последним измерениям для каждого датчика
+        const int SmoothWindow = 10;
+        double?[,] _smoothBuf = new double?[3, SmoothWindow];
+        int[] _smoothCount = new int[3];   // сколько реально значений есть (до 10)
+        int[] _smoothIndex = new int[3];   // куда писать следующее значение
+
         private LaserService() { }
 
         /// <summary>Сырой миллиметровый результат конкретного датчика (0..2), без поправки, или null если нет данных.</summary>
@@ -58,6 +64,25 @@ namespace RoboScanner.Services
 
             return (x, y, z);
         }
+
+        public void ResetAveraging()
+        {
+            lock (_sync)
+            {
+                // сбрасываем усреднённые значения
+                _rawMm[0] = _rawMm[1] = _rawMm[2] = null;
+
+                // сбрасываем окна усреднения
+                for (int i = 0; i < 3; i++)
+                {
+                    _smoothCount[i] = 0;
+                    _smoothIndex[i] = 0;
+                    for (int k = 0; k < SmoothWindow; k++)
+                        _smoothBuf[i, k] = null;
+                }
+            }
+        }
+
 
         public void Start()
         {
@@ -163,7 +188,42 @@ namespace RoboScanner.Services
                             double? mm = ParseDistanceMm(raw, offset, i);
                             lock (_sync)
                             {
-                                _rawMm[i] = mm;
+                                if (mm.HasValue)
+                                {
+                                    // кладём новое значение в кольцевой буфер
+                                    int idx = _smoothIndex[i];
+                                    _smoothBuf[i, idx] = mm.Value;
+
+                                    if (_smoothCount[i] < SmoothWindow)
+                                        _smoothCount[i]++;
+
+                                    _smoothIndex[i] = (idx + 1) % SmoothWindow;
+
+                                    // считаем среднее по имеющимся значениям
+                                    double sum = 0;
+                                    int cnt = 0;
+                                    for (int k = 0; k < _smoothCount[i]; k++)
+                                    {
+                                        var v = _smoothBuf[i, k];
+                                        if (v.HasValue)
+                                        {
+                                            sum += v.Value;
+                                            cnt++;
+                                        }
+                                    }
+
+                                    _rawMm[i] = cnt > 0 ? sum / cnt : (double?)null;
+                                }
+                                else
+                                {
+                                    // если текущее чтение невалидно — чистим буфер и считаем, что данных нет
+                                    for (int k = 0; k < SmoothWindow; k++)
+                                        _smoothBuf[i, k] = null;
+
+                                    _smoothCount[i] = 0;
+                                    _smoothIndex[i] = 0;
+                                    _rawMm[i] = null;
+                                }
                             }
                         }
                     }
@@ -175,6 +235,14 @@ namespace RoboScanner.Services
                         lock (_sync)
                         {
                             _rawMm[0] = _rawMm[1] = _rawMm[2] = null;
+
+                            for (int i = 0; i < 3; i++)
+                            {
+                                _smoothCount[i] = 0;
+                                _smoothIndex[i] = 0;
+                                for (int k = 0; k < SmoothWindow; k++)
+                                    _smoothBuf[i, k] = null;
+                            }
                         }
                     }
 
